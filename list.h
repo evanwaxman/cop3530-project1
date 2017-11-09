@@ -62,6 +62,7 @@ namespace cop3530 {
         //void setArray(L* new_array) { array = new_array; };
         void setNext(ArrayNode* new_next) { next = new_next; };
         L Element(size_t position) { return array[position]; };
+        L* ElementAddr(size_t position) { return &array[position]; };
         void editElement(size_t position, L element) { array[position] = element; };
         ArrayNode* Next() { return next; };
     };

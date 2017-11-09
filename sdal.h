@@ -18,6 +18,13 @@ using namespace cop3530;
 template <typename L>
 class SDAL : public List<L> {
     
+private:
+    //L* array;
+    L* data;
+    size_t tail;
+    size_t size;
+    bool empty;
+    
 public:
     SDAL(size_t len = 50);
     ~SDAL();
@@ -43,26 +50,107 @@ public:
     void enlarge_array(void);
     void reduce_array(void);
     
-private:
-    L* array;
-    L* data;
-    size_t tail;
-    size_t size;
-};
+public:
+    template <typename DataL>
+    class SDAL_Iter {
+    public:
+        // type aliases required for C++ iterator compatibility
+        using value_type = DataL;
+        using reference = DataL&;
+        using pointer = DataL*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        
+        // type aliases for prettier code
+        using self_type = SDAL_Iter;
+        using self_reference = SDAL_Iter&;
+        
+    private:
+        L* here;
+        //size_t index;
+        
+    public:
+        explicit SDAL_Iter( L* start = nullptr ) : here( start ) {}
+        SDAL_Iter( L* src, size_t i) : here( &src[i+1] ) {}
+        
+        static self_type make_begin( SDAL& n ) {
+            self_type i( n.data );
+            return i;
+        }
+        static self_type make_end( SDAL& n ) {
+            //Node<L>* endptr = nullptr;
+            self_type i( n.data, n.tail );
+            return i;
+        }
+        
+        value_type operator*() const { return here->Data(); }
+        DataL* operator->() const { return here; }
+        
+        self_reference operator=( SDAL_Iter const& src ) {
+            if (this != &src) {
+                here = src.here;
+            }
+            return (*this);
+        }
+        
+        self_reference operator++() {
+            if (here) {
+                here++;
+            }
+            return (*this);
+        } // preincre ment
+        
+        self_type operator++(int) {
+            self_type tmp(*this);
+            this++;
+            return tmp;
+        } // postincrement
+        
+        bool operator==( SDAL_Iter<DataL> const& rhs ) const {
+            return (here == rhs.here);
+        }
+        bool operator!=( SDAL_Iter<DataL> const& rhs) const {
+            return (here != rhs.here);
+        }
+        
+        // return iterator data function
+        value_type data() { return *here; }
+        
+    }; // end SDAL_Iter
+    
+public:
+    //--------------------------------------------------
+    // type aliases
+    //--------------------------------------------------
+    //using size_t = std::size_t; // you may comment out this line if your compiler complains
+    using value_type = L;
+    using iterator = SDAL_Iter<L>;
+    using const_iterator = SDAL_Iter<L const>;
+    
+    // iterators over a non-const List
+    iterator begin() { return iterator::make_begin(*this); }
+    iterator end() { return iterator::make_end(*this); }
+    
+    // iterators over a const List
+    const_iterator begin() const { return const_iterator::make_begin(*this); }
+    const_iterator end() const { return const_iterator::make_end(*this); }
+
+};  // end SDAL
 
 /******************************************
  *   constructor
  ******************************************/
 template <typename L>
 SDAL<L>::SDAL(size_t len) {
-    array = new L[size];
-    tail = 0;
-    data = NULL;
+    //array = new L[size];
     size = len;
+    tail = 0;
+    data = new L[size];
+    empty = true;
 }
 
 /******************************************
- *   constructor
+ *   deconstructor
  ******************************************/
 template <typename L>
 SDAL<L>::~SDAL() {
@@ -79,6 +167,11 @@ void SDAL<L>::insert(L element, size_t position) {
     } else {
         if (is_full()) {
             enlarge_array();
+        } else if (is_empty()) {
+            data[0] = element;
+            tail = 0;
+            empty = false;
+            return;
         }
         
         if (position != tail) {
@@ -91,7 +184,7 @@ void SDAL<L>::insert(L element, size_t position) {
             
             data[position] = element;
             
-            for (size_t i=position; i<length(); i++) {
+            for (size_t i=position; i<=tail; i++) {
                 data[i+1] = oldArray[i];
             }
             
@@ -110,6 +203,11 @@ template <typename L>
 void SDAL<L>::push_back(L element) {
     if (is_full()) {
         enlarge_array();
+    } else if (is_empty()) {
+        data[0] = element;
+        tail = 0;
+        empty = false;
+        return;
     }
     tail = tail+1;
     data[tail] = element;
@@ -123,8 +221,10 @@ void SDAL<L>::push_front(L element) {
     if (is_full()) {
         enlarge_array();
     } else if (is_empty()) {
-        data = array;
+        //data = array;
         data[0] = element;
+        tail = 0;
+        empty = false;
         return;
     }
     
@@ -134,8 +234,8 @@ void SDAL<L>::push_front(L element) {
     
     data[0] = element;
     
-    size_t limit = length();
-    for (size_t i=1; i<limit; i++) {
+    //size_t limit = length();
+    for (size_t i=1; i<=tail; i++) {
         data[i] = oldArray[i-1];
     }
     
@@ -238,11 +338,7 @@ L SDAL<L>::peek_front() {
  ******************************************/
 template <typename L>
 bool SDAL<L>::is_empty() {
-    if (!length()) {
-        return true;
-    } else {
-        return false;
-    }
+    return empty;
 }
 
 /******************************************

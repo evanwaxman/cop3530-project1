@@ -17,9 +17,33 @@ using namespace cop3530;
 template <typename L>
 class PSLL : public List<L> {
     
+private:
+    Node<L>* head;
+    Node<L>* tail;
+    Node<L>* headFree;
+    
 public:
-    PSLL();
-    ~PSLL();
+    PSLL() {
+        head = NULL;
+        tail = NULL;
+        
+        // allocate first free list node
+        Node<L>* newNode = new Node<L>();
+        newNode->setData(0);
+        newNode->setNext(nullptr);
+        headFree = newNode;
+        
+        // allocate rest of free list
+        for (size_t i = 1; i < 10; i++) {
+            allocate_node();
+        }
+    }
+    ~PSLL() {
+        clear();
+        delete head;
+        delete headFree;
+        
+    }
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -44,41 +68,87 @@ public:
     void allocate_node(void);
     void deallocate_node(void);
     
-private:
-    Node<L>* head;
-    Node<L>* tail;
-    Node<L>* headFree;
-};
-
-/******************************************
- *   constructor
- ******************************************/
-template <typename L>
-PSLL<L>::PSLL() {
-    head = NULL;
-    tail = NULL;
+public:
+    template <typename DataL>
+    class PSLL_Iter {
+    public:
+        // type aliases required for C++ iterator compatibility
+        using value_type = DataL;
+        using reference = DataL&;
+        using pointer = DataL*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        
+        // type aliases for prettier code
+        using self_type = PSLL_Iter;
+        using self_reference = PSLL_Iter&;
+        
+    private:
+        Node<DataL>* here;
+        
+    public:
+        explicit PSLL_Iter( Node<L>* start = nullptr ) : here( start ) {}
+        PSLL_Iter( const PSLL_Iter& src ) : here( src.here ) {}
+        //PSLL_Iter( const Node<L>* end ) : here( end->Data() ) {}
+        
+        static self_type make_begin( PSLL& n ) {
+            self_type i( n.head );
+            return i;
+        }
+        static self_type make_end( PSLL& n ) {
+            Node<L>* endptr = nullptr;
+            self_type i( endptr );
+            return i;
+        }
+        
+        value_type operator*() const { return here->Data(); }
+        Node<DataL>* operator->() const { return here; }
+        
+        self_reference operator=( PSLL_Iter const& src ) {
+            if (this != &src) {
+                here = src.here;
+            }
+            return (*this);
+        }
+        
+        self_reference operator++() {
+            if (here->Data()) {
+                here = here->Next();
+            }
+            return (*this);
+        } // preincre ment
+        
+        self_type operator++(int) {
+            self_type tmp(*this);
+            this = this->Next();
+            return tmp;
+        } // postincrement
+        
+        bool operator==( PSLL_Iter<DataL> const& rhs ) const {
+            return (here == rhs.here);
+        }
+        bool operator!=( PSLL_Iter<DataL> const& rhs) const {
+            return (here != rhs.here);
+        }
+    }; // end PSLL_Iter
     
-    // allocate first free list node
-    Node<L>* newNode = new Node<L>();
-    newNode->setData(NULL);
-    newNode->setNext(NULL);
-    headFree = newNode;
+public:
+    //--------------------------------------------------
+    // type aliases
+    //--------------------------------------------------
+    //using size_t = std::size_t; // you may comment out this line if your compiler complains
+    using value_type = L;
+    using iterator = PSLL_Iter<L>;
+    using const_iterator = PSLL_Iter<L const>;
     
-    // allocate rest of free list
-    for (size_t i = 1; i < 10; i++) {
-        allocate_node();
-    }
-}
-
-/******************************************
- *   destructer
- ******************************************/
-template <typename L>
-PSLL<L>::~PSLL() {
-    clear();
-    delete head;
-    delete headFree;
-}
+    // iterators over a non-const List
+    iterator begin() { return iterator::make_begin(*this); }
+    iterator end() { return iterator::make_end(*this); }
+    
+    // iterators over a const List
+    const_iterator begin() const { return const_iterator::make_begin(*this); }
+    const_iterator end() const { return const_iterator::make_end(*this); }
+};  // end PSLL
 
 /******************************************
  *   insert
@@ -221,7 +291,7 @@ L PSLL<L>::remove(size_t position) {
         }
         oldData = curr->Data();
         curr->setNext(headFree);
-        curr->setData(NULL);
+        curr->setData(0);
         headFree = curr;
     } else {
         position = position - 1;
@@ -236,7 +306,7 @@ L PSLL<L>::remove(size_t position) {
         
         next->setNext(headFree);
         oldData = next->Data();
-        next->setData(NULL);
+        next->setData(0);
         headFree = next;
     }
     
@@ -344,11 +414,15 @@ size_t PSLL<L>::length() {
  ******************************************/
 template <typename L>
 void PSLL<L>::clear() {
-    size_t len = this->length() - 1;
-    for (size_t i = len; i > 0; i--) {
-        this->remove(i);
+    //size_t len = this->length() - 1;
+    size_t len = this->length();
+    
+    if (len > 0) {
+        for (size_t i = len; i > 0; i--) {
+            this->remove(i);
+        }
+        this->remove(0);
     }
-    this->remove(0);
 }
 
 /******************************************
@@ -445,7 +519,7 @@ size_t PSLL<L>::length_free_list() {
 template <typename L>
 void PSLL<L>::allocate_node() {
     Node<L>* newNode = new Node<L>;
-    newNode->setData(NULL);
+    newNode->setData(0);
     newNode->setNext(headFree);
     headFree = newNode;
 }

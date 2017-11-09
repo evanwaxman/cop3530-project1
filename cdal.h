@@ -17,6 +17,10 @@ using namespace cop3530;
 template <typename L>
 class CDAL : public List<L> {
     
+private:
+    ArrayNode<L>* data;
+    size_t tail;
+    
 public:
     CDAL();
     ~CDAL();
@@ -39,10 +43,100 @@ public:
     void print(void) override;
     L* contents(void) override;
     
-private:
-    ArrayNode<L>* data;
-    size_t tail;
-};
+public:
+    template <typename DataL>
+    class CDAL_Iter {
+    public:
+        // type aliases required for C++ iterator compatibility
+        using value_type = DataL;
+        using reference = DataL&;
+        using pointer = DataL*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        
+        // type aliases for prettier code
+        using self_type = CDAL_Iter;
+        using self_reference = CDAL_Iter&;
+        
+    private:
+        L* here;
+        //size_t index;
+        
+    public:
+        explicit CDAL_Iter( ArrayNode<L>* start = nullptr ) : here( start->ElementAddr(0) ) {}
+        CDAL_Iter( ArrayNode<L>* src, size_t i) : here( src->ElementAddr(i+1) ) {}
+        
+        static self_type make_begin( CDAL& n ) {
+            self_type i( n.data );
+            return i;
+        }
+        static self_type make_end( CDAL& n ) {
+            //Node<L>* endptr = nullptr;
+            size_t maxArrayBin = n.tail / ARRAYSIZE;      // get max array bin num
+            size_t maxArrayIndex = n.tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+            
+            ArrayNode<L>* currArrayNode = n.data;
+            
+            for (size_t i=0; i<maxArrayBin; i++) {
+                currArrayNode = currArrayNode->Next();
+            }
+            
+            self_type i( n.data, maxArrayIndex );
+            return i;
+        }
+        
+        value_type operator*() const { return here->Data(); }
+        DataL* operator->() const { return here; }
+        
+        self_reference operator=( CDAL_Iter const& src ) {
+            if (this != &src) {
+                here = src.here;
+            }
+            return (*this);
+        }
+        
+        self_reference operator++() {
+            if (here) {
+                here++;
+            }
+            return (*this);
+        } // preincre ment
+        
+        self_type operator++(int) {
+            self_type tmp(*this);
+            this++;
+            return tmp;
+        } // postincrement
+        
+        bool operator==( CDAL_Iter<DataL> const& rhs ) const {
+            return (here == rhs.here);
+        }
+        bool operator!=( CDAL_Iter<DataL> const& rhs) const {
+            return (here != rhs.here);
+        }
+        
+        // return iterator data function
+        value_type data() { return *here; }
+        
+    }; // end SDAL_Iter
+    
+public:
+    //--------------------------------------------------
+    // type aliases
+    //--------------------------------------------------
+    //using size_t = std::size_t; // you may comment out this line if your compiler complains
+    using value_type = L;
+    using iterator = CDAL_Iter<L>;
+    using const_iterator = CDAL_Iter<L const>;
+    
+    // iterators over a non-const List
+    iterator begin() { return iterator::make_begin(*this); }
+    iterator end() { return iterator::make_end(*this); }
+    
+    // iterators over a const List
+    const_iterator begin() const { return const_iterator::make_begin(*this); }
+    const_iterator end() const { return const_iterator::make_end(*this); }
+};  // end CDAL
 
 /******************************************
  *   constructor
@@ -50,7 +144,7 @@ private:
 template <typename L>
 CDAL<L>::CDAL() {
     data = nullptr;
-    tail = NULL;
+    tail = 0;
 }
 
 /******************************************
@@ -266,7 +360,7 @@ L CDAL<L>::remove(size_t position) {
             currArrayNode->editElement((ARRAYSIZE-1),nextArrayNode->Element(0));
         } else {
             // replace last element of curr array with NULL value
-            currArrayNode->editElement((ARRAYSIZE-1),NULL);
+            currArrayNode->editElement((ARRAYSIZE-1),0);
             tail -= 1;
             
             return removedElement;
@@ -294,7 +388,7 @@ L CDAL<L>::remove(size_t position) {
             for (size_t j=0; j<maxArrayIndex; j++) {
                 currArrayNode->editElement(j,currArrayNode->Element(j+1));
             }
-            currArrayNode->editElement(maxArrayIndex,NULL);
+            currArrayNode->editElement(maxArrayIndex,0);
         } else {
             // delete array and arrayNode
             delete nextArrayNode;
@@ -407,7 +501,7 @@ void CDAL<L>::clear() {
     }
     
     data = nullptr;
-    tail = NULL;
+    tail = 0;
 }
 
 /******************************************

@@ -16,28 +16,17 @@ using namespace cop3530;
 
 template <typename L>
 class SSLL : public List<L> {
-
-//public:
     
-    //--------------------------------------------------
-    // type aliases
-    //--------------------------------------------------
-//    using size_t = std::size_t; // you may comment out this line if your compiler complains
-//    using value_type = L;
-//    using iterator = SSLL_Iter<L>;
-//    using const_iterator = SSLL_Iter<L const>;
+private:
+    Node<L>* head;
+    Node<L>* tail;
     
-    // iterators over a non-const List
-//    iterator begin() { return /* iterator denoting first element */; }
-//    iterator end() { return /* iterator denoting 1 past the last element */; }
-    
-    // iterators over a const List
-//    const_iterator begin() const { return /* const_iterator denoting first element */; }
-//    const_iterator end() const { return /* const_iterator denoting 1 past the last element */; }
-
 public:
-    SSLL();
-    ~SSLL();
+    SSLL() : head(nullptr), tail(nullptr) {};
+    ~SSLL() {
+        clear();
+        delete head;
+    }
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -57,28 +46,112 @@ public:
     void print(void) override;
     L* contents(void) override;
     
-private:
-    Node<L>* head;
-    Node<L>* tail;
-};
+public:
+    template <typename DataL>
+    class SSLL_Iter {
+    public:
+        // type aliases required for C++ iterator compatibility
+        using value_type = DataL;
+        using reference = DataL&;
+        using pointer = DataL*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        
+        // type aliases for prettier code
+        using self_type = SSLL_Iter;
+        using self_reference = SSLL_Iter&;
+        
+    private:
+        Node<DataL>* here;
+        
+        
+    public:
+        explicit SSLL_Iter( Node<L>* start = nullptr ) : here( start ) {}
+        SSLL_Iter( const SSLL_Iter& src ) : here( src.here ) {}
+        
+        static self_type make_begin( SSLL& n ) {
+            self_type i( n.head );
+            return i;
+        }
+        static self_type make_end( SSLL& n ) {
+            Node<L>* endptr = nullptr;
+            self_type i( endptr );
+            return i;
+        }
+        
+        value_type operator*() const { return here->Data(); }
+        
+        //Node<DataL>* operator->() const { return here; }
+        Node<DataL>* operator->() const { return &(operator*()); }
+        
+        self_reference operator=( SSLL_Iter const& src ) {
+            if (this != &src) {
+                here = src.here;
+            }
+            return (*this);
+        }
+        
+        self_reference operator++() {
+            if (here->Data()) {
+                here = here->Next();
+            }
+            return (*this);
+        } // preincre ment
+        
+        self_type operator++(int) {
+            self_type tmp(*this);
+            this = this->Next();
+            return tmp;
+        } // postincrement
+        
+        bool operator==( SSLL_Iter<DataL> const& rhs ) const {
+            return (here == rhs.here);
+        }
+        bool operator!=( SSLL_Iter<DataL> const& rhs) const {
+            return (here != rhs.here);
+        }
+    }; // end SSLL_Iter
+
+public:
+    //--------------------------------------------------
+    // type aliases
+    //--------------------------------------------------
+    //using size_t = std::size_t; // you may comment out this line if your compiler complains
+    using value_type = L;
+    using iterator = SSLL_Iter<L>;
+    using const_iterator = SSLL_Iter<L const>;
+    
+    // iterators over a non-const List
+    iterator begin() { return iterator::make_begin(*this); }
+    iterator end() { return iterator::make_end(*this); }
+    
+    // iterators over a const List
+    const_iterator begin() const { return const_iterator::make_begin(*this); }
+    const_iterator end() const { return const_iterator::make_end(*this); }
+    
+}; // end SSLL
 
 /******************************************
  *   constructor
  ******************************************/
+/*
 template <typename L>
 SSLL<L>::SSLL() {
     head = NULL;
     tail = NULL;
 }
+*/
 
 /******************************************
  *   destructer
  ******************************************/
+/*
 template <typename L>
 SSLL<L>::~SSLL() {
     clear();
     delete head;
 }
+*/
 
 /******************************************
  *   insert
@@ -307,11 +380,15 @@ size_t SSLL<L>::length() {
  ******************************************/
 template <typename L>
 void SSLL<L>::clear() {
-    size_t len = this->length() - 1;
-    for (size_t i = len; i > 0; i--) {
-        this->remove(i);
+    //size_t len = this->length() - 1;
+    size_t len = this->length();
+    
+    if (len > 0) {
+        for (size_t i = len-1; i > 1; i--) {
+            this->remove(i);
+        }
+        this->remove(0);
     }
-    this->remove(0);
 }
 
 /******************************************
