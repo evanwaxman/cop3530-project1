@@ -174,8 +174,8 @@ void CDAL<L>::insert(L element, size_t position) {
         // create position parameters
         size_t posArrayBin = position / ARRAYSIZE;      // get position array bin num
         size_t posArrayIndex = position - (posArrayBin * ARRAYSIZE);    // get index in position bin
-        size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
-        size_t maxArrayIndex = tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+        size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
+        size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
         
         // create first node if list is empty
         if (data == nullptr) {
@@ -186,7 +186,7 @@ void CDAL<L>::insert(L element, size_t position) {
             // add new first element
             newNode->editElement(0,element);
             
-            tail = 0;
+            //tail = 0;
         } else {
             // create node to iterate through list
             ArrayNode<L>* currArrayNode = data;         // point to first array
@@ -262,9 +262,8 @@ void CDAL<L>::insert(L element, size_t position) {
                     }
                 }
             }
-        
-            tail += 1;
         }
+        tail += 1;
     }
 }
 
@@ -273,19 +272,7 @@ void CDAL<L>::insert(L element, size_t position) {
  ******************************************/
 template <typename L>
 void CDAL<L>::push_back(L element) {
-/*
-    if (is_full()) {
-        add_array();
-    }
-    ArrayNode<L>* curr = data;
-    
-    while (curr) {
-        curr = curr->Next();
-    }
-    tail += 1;
-    curr[tail] = element;
- */
-    insert(element, tail+1);
+    insert(element, tail);
 }
 
 /******************************************
@@ -334,8 +321,8 @@ L CDAL<L>::remove(size_t position) {
         // create position parameters
         size_t posArrayBin = position / ARRAYSIZE;      // get position array bin num
         size_t posArrayIndex = position - (posArrayBin * ARRAYSIZE);    // get index in position bin
-        size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
-        size_t maxArrayIndex = tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+        size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
+        size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
         
         // create curr and next array node to iterate through list
         ArrayNode<L>* currArrayNode = data;         // point to first array
@@ -361,7 +348,7 @@ L CDAL<L>::remove(size_t position) {
         } else {
             // replace last element of curr array with NULL value
             currArrayNode->editElement((ARRAYSIZE-1),0);
-            tail -= 1;
+            tail--;
             
             return removedElement;
         }
@@ -394,7 +381,7 @@ L CDAL<L>::remove(size_t position) {
             delete nextArrayNode;
         }
         
-        tail -= 1;
+        tail--;
         
         return removedElement;
     }
@@ -405,7 +392,7 @@ L CDAL<L>::remove(size_t position) {
  ******************************************/
 template <typename L>
 L CDAL<L>::pop_back() {
-    return remove(tail);
+    return remove(tail-1);
 }
 
 /******************************************
@@ -421,7 +408,7 @@ L CDAL<L>::pop_front() {
  ******************************************/
 template <typename L>
 L CDAL<L>::item_at(size_t position) {
-    if (position > tail) {
+    if (position > (tail-1)) {
         throw std::runtime_error("CDAL<L>.item_at(): item_at position is out of list bounds.");
     } else {
         // create position parameters
@@ -445,7 +432,7 @@ L CDAL<L>::item_at(size_t position) {
  ******************************************/
 template <typename L>
 L CDAL<L>::peek_back() {
-    return item_at(tail);
+    return item_at(tail-1);
 }
 
 /******************************************
@@ -481,7 +468,7 @@ bool CDAL<L>::is_full() {
  ******************************************/
 template <typename L>
 size_t CDAL<L>::length() {
-    return (tail + 1);
+    return tail;
 }
 
 /******************************************
@@ -489,7 +476,7 @@ size_t CDAL<L>::length() {
  ******************************************/
 template <typename L>
 void CDAL<L>::clear() {
-    size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
+    size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
     
     ArrayNode<L>* currArrayNode = data;
     ArrayNode<L>* prevArrayNode = data;
@@ -509,8 +496,8 @@ void CDAL<L>::clear() {
  ******************************************/
 template <typename L>
 bool CDAL<L>::contains(L element) {
-    size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
-    size_t maxArrayIndex = tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+    size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
+    size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
     
     ArrayNode<L>* currArrayNode = data;
     
@@ -542,8 +529,8 @@ void CDAL<L>::print() {
     } else {
         ArrayNode<L>* currArrayNode = data;
         
-        size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
-        size_t maxArrayIndex = tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+        size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
+        size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
         
         std::cout << "[";
         for (size_t i=0; i<maxArrayBin; i++) {
@@ -569,10 +556,10 @@ template <typename L>
 L* CDAL<L>::contents() {
     ArrayNode<L>* currArrayNode = data;
     
-    L* contentArray = new L[tail+1];
+    L* contentArray = new L[tail];
     
-    size_t maxArrayBin = tail / ARRAYSIZE;      // get max array bin num
-    size_t maxArrayIndex = tail - (maxArrayBin * ARRAYSIZE);    // get index in max bin
+    size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
+    size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
     
     size_t index = 0;
     
