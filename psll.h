@@ -9,6 +9,8 @@
 #include <iostream>
 #include "list.h"
 
+#define MAX_FREE_SIZE 50
+
 #ifndef psll_h
 #define psll_h
 
@@ -24,9 +26,11 @@ private:
     
 public:
     PSLL() {
-        head = NULL;
-        tail = NULL;
+        head = nullptr;
+        tail = nullptr;
+        headFree = nullptr;
         
+     /*  list starts out empty
         // allocate first free list node
         Node<L>* newNode = new Node<L>();
         newNode->setData(0);
@@ -37,6 +41,8 @@ public:
         for (size_t i = 1; i < 10; i++) {
             allocate_node();
         }
+     */
+        
     }
     ~PSLL() {
         clear();
@@ -183,10 +189,8 @@ void PSLL<L>::insert(L element, size_t position) {
         if (length() == position) { // insert at end of list?
             tail = headFree;
         }
-        //next = next->Next();
         while (++i != position) {
             curr = curr->Next();
-            //next = next->Next();
         }
         next = headFree;
         headFree = headFree->Next();
@@ -310,7 +314,7 @@ L PSLL<L>::remove(size_t position) {
         headFree = next;
     }
     
-    if (length() >= 100 && length_free_list() > 50) {
+    if (length_free_list() > 50) {
         deallocate_node();
     }
     
@@ -418,7 +422,7 @@ void PSLL<L>::clear() {
     size_t len = this->length();
     
     if (len > 0) {
-        for (size_t i = len; i > 0; i--) {
+        for (size_t i = len-1; i > 0; i--) {
             this->remove(i);
         }
         this->remove(0);
