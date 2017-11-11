@@ -22,8 +22,9 @@ private:
     //L* array;
     L* data;
     size_t tail;
-    size_t size;
-    bool empty;
+    size_t init_size;
+    size_t curr_size;
+    //bool empty;
     
 public:
     SDAL(size_t len = 50);
@@ -142,11 +143,11 @@ public:
  ******************************************/
 template <typename L>
 SDAL<L>::SDAL(size_t len) {
-    //array = new L[size];
-    size = len;
+    init_size = len;
+    curr_size = len;
     tail = 0;
-    data = new L[size];
-    empty = true;
+    data = new L[init_size+1];
+    //empty = true;
 }
 
 /******************************************
@@ -167,16 +168,19 @@ void SDAL<L>::insert(L element, size_t position) {
     } else {
         if (is_full()) {
             enlarge_array();
-        } else if (is_empty()) {
-            data[0] = element;
-            tail = 0;
-            empty = false;
-            return;
         }
         
-        if (position != tail) {
+    /*    else if (is_empty()) {
+            data[0] = element;
+            //tail = 0;
+            //empty = false;
+            return;
+        }
+    */
+        
+        if (position != (tail-1)) {
             L* oldArray = data;
-            data = new L[size];
+            data = new L[curr_size];
             
             for (size_t i=0; i<position; i++) {
                 data[i] = oldArray[i];
@@ -184,7 +188,7 @@ void SDAL<L>::insert(L element, size_t position) {
             
             data[position] = element;
             
-            for (size_t i=position; i<=tail; i++) {
+            for (size_t i=position; i<tail; i++) {
                 data[i+1] = oldArray[i];
             }
             
@@ -192,7 +196,7 @@ void SDAL<L>::insert(L element, size_t position) {
         } else {
             data[position] = element;
         }
-        tail = tail+1;
+        tail++;
     }
 }
 
@@ -203,14 +207,17 @@ template <typename L>
 void SDAL<L>::push_back(L element) {
     if (is_full()) {
         enlarge_array();
-    } else if (is_empty()) {
+    }
+/*
+    else if (is_empty()) {
         data[0] = element;
         tail = 0;
-        empty = false;
+        //empty = false;
         return;
     }
-    tail = tail+1;
+ */
     data[tail] = element;
+    tail++;
 }
 
 /******************************************
@@ -220,26 +227,29 @@ template <typename L>
 void SDAL<L>::push_front(L element) {
     if (is_full()) {
         enlarge_array();
-    } else if (is_empty()) {
+    }
+/*
+    else if (is_empty()) {
         //data = array;
         data[0] = element;
         tail = 0;
-        empty = false;
+        //empty = false;
         return;
     }
+*/
     
-    tail = tail+1;
     L* oldArray = data;
-    data = new L[size];
+    data = new L[curr_size];
     
     data[0] = element;
     
-    //size_t limit = length();
-    for (size_t i=1; i<=tail; i++) {
+    for (size_t i=1; i<tail; i++) {
         data[i] = oldArray[i-1];
     }
     
     delete[] oldArray;
+    
+    tail++;
 }
 
 /******************************************
@@ -264,29 +274,27 @@ L SDAL<L>::replace(L element, size_t position) {
 template <typename L>
 L SDAL<L>::remove(size_t position) {
     L oldData;
-    if (length() < position) {
-        throw std::runtime_error("SSLL<L>.replace(): replace position is out of list bounds.");
-    } else if (position == tail) {
-        oldData = data[tail];
-        tail -= 1;
+    if (length() <= position) {
+        throw std::runtime_error("SSLL<L>.replace(): remove position is out of list bounds.");
+    } else if (position == (tail-1)) {
+        oldData = data[tail-1];
+        tail--;
     } else {
         L* oldArray = data;
         oldData = oldArray[position];
-        //tail -= 1;
-        data = new L[size];
+        data = new L[curr_size];
         
-        size_t limit = length();
         for (size_t i=0; i<position; i++) {
             data[i] = oldArray[i];
         }
         
-        for (size_t i=position; i<limit; i++) {
+        for (size_t i=position; i<(tail-1); i++) {
             data[i] = oldArray[i+1];
         }
-        tail -= 1;
+        tail--;
     }
     
-    if ((size >= 100) && (tail <50)) {
+    if ((curr_size >= 2*init_size) && (tail < (curr_size/2))) {
         reduce_array();
     }
     
@@ -298,7 +306,7 @@ L SDAL<L>::remove(size_t position) {
  ******************************************/
 template <typename L>
 L SDAL<L>::pop_back() {
-    return remove(tail);
+    return remove(tail-1);
 }
 
 /******************************************
@@ -322,7 +330,7 @@ L SDAL<L>::item_at(size_t position) {
  ******************************************/
 template <typename L>
 L SDAL<L>::peek_back() {
-    return data[tail];
+    return data[tail-1];
 }
 
 /******************************************
@@ -338,7 +346,10 @@ L SDAL<L>::peek_front() {
  ******************************************/
 template <typename L>
 bool SDAL<L>::is_empty() {
-    return empty;
+    if (tail) {
+        return false;
+    }
+    return true;
 }
 
 /******************************************
@@ -346,7 +357,7 @@ bool SDAL<L>::is_empty() {
  ******************************************/
 template <typename L>
 bool SDAL<L>::is_full() {
-    if (length() == size) {
+    if (length() == curr_size) {
         return true;
     } else {
         return false;
@@ -358,11 +369,7 @@ bool SDAL<L>::is_full() {
  ******************************************/
 template <typename L>
 size_t SDAL<L>::length() {
-    if (data == NULL) {
-        return 0;
-    } else {
-        return (tail+1);
-    }
+    return tail;
 }
 
 /******************************************
@@ -370,10 +377,11 @@ size_t SDAL<L>::length() {
  ******************************************/
 template <typename L>
 void SDAL<L>::clear() {
-    for (size_t i = tail; i > 0; i--) {
+    for (size_t i = tail-1; i > 0; i--) {
         remove(i);
     }
     remove(0);
+    tail = 0;
 }
 
 /******************************************
@@ -381,7 +389,7 @@ void SDAL<L>::clear() {
  ******************************************/
 template <typename L>
 bool SDAL<L>::contains(L element) {
-    for (size_t i=0; i<=tail; i++) {
+    for (size_t i=0; i<tail; i++) {
         if (data[i] == element) {
             return true;
         }
@@ -404,7 +412,7 @@ void SDAL<L>::print() {
             std::cout << data[i] << ",";
         }
         
-        std::cout << data[tail] << "]" << std::endl;
+        //std::cout << data[tail] << "]" << std::endl;
     }
 }
 
@@ -421,8 +429,8 @@ L* SDAL<L>::contents() {
  ******************************************/
 template <typename L>
 void SDAL<L>::enlarge_array() {
-    L* newArray = new L[int(1.5*size)];
-    for (size_t i=0; i<size; i++) {
+    L* newArray = new L[int(1.5*curr_size)];
+    for (size_t i=0; i<curr_size; i++) {
         newArray[i] = data[i];
     }
     delete[] data;
@@ -434,9 +442,9 @@ void SDAL<L>::enlarge_array() {
  ******************************************/
 template <typename L>
 void SDAL<L>::reduce_array() {
-    size = int(0.75*size);
-    L* newArray = new L[size];
-    for (size_t i=0; i<=tail; i++) {
+    curr_size = int(0.75*curr_size);
+    L* newArray = new L[curr_size];
+    for (size_t i=0; i<tail; i++) {
         newArray[i] = data[i];
     }
     delete[] data;
