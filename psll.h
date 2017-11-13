@@ -27,12 +27,7 @@ private:
 public:
     PSLL();     // constuctor
     PSLL(const PSLL &obj);   // copy constructor
-    ~PSLL() {                   // deconstructor
-        clear();
-        delete head;
-        delete headFree;
-        
-    }
+    ~PSLL();    // deconstructor
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -56,6 +51,7 @@ public:
     size_t length_free_list(void);
     void allocate_node(void);
     void deallocate_node(void);
+    void clear_free(void);
     
 public:
     template <typename DataL>
@@ -159,6 +155,16 @@ PSLL<L>::PSLL(const PSLL &obj) {
     *headFree = *obj.headFree;
 }
 
+/******************************************
+ *   deconstructor
+ ******************************************/
+template <typename L>
+PSLL<L>::~PSLL() {       
+    clear();
+    clear_free();
+    delete head;
+    delete headFree;
+}
 
 /******************************************
  *   insert
@@ -292,8 +298,8 @@ L PSLL<L>::remove(size_t position) {
         throw std::runtime_error("SSLL<L>.remove(): remove position is out of list bounds.");
     } else if (position == 0) { // remove at start of list?
         if (head == tail) {
-            head = NULL;
-            tail = NULL;
+            head = nullptr;
+            tail = nullptr;
         } else {
             head = next;
         }
@@ -425,7 +431,6 @@ size_t PSLL<L>::length() {
  ******************************************/
 template <typename L>
 void PSLL<L>::clear() {
-    //size_t len = this->length() - 1;
     size_t len = this->length();
     
     if (len > 0) {
@@ -546,5 +551,17 @@ void PSLL<L>::deallocate_node() {
     delete curr;
 }
 
+/******************************************
+ *   clear_free
+ ******************************************/
+template <typename L>
+void PSLL<L>::clear_free() {
+    Node<L>* temp = headFree;
+    while (headFree->Next()) {
+        headFree = headFree->Next();
+        delete temp;
+        temp = headFree;
+    }
+}
 
 #endif /* psll_h */

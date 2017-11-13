@@ -300,6 +300,7 @@ L SDAL<L>::remove(size_t position) {
         for (size_t i=position; i<(tail-1); i++) {
             data[i] = oldArray[i+1];
         }
+        delete[] oldArray;
         tail--;
     }
     
