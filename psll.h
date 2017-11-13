@@ -25,26 +25,9 @@ private:
     Node<L>* headFree;
     
 public:
-    PSLL() {
-        head = nullptr;
-        tail = nullptr;
-        headFree = nullptr;
-        
-     /*  list starts out empty
-        // allocate first free list node
-        Node<L>* newNode = new Node<L>();
-        newNode->setData(0);
-        newNode->setNext(nullptr);
-        headFree = newNode;
-        
-        // allocate rest of free list
-        for (size_t i = 1; i < 10; i++) {
-            allocate_node();
-        }
-     */
-        
-    }
-    ~PSLL() {
+    PSLL();     // constuctor
+    PSLL(const PSLL &obj);   // copy constructor
+    ~PSLL() {                   // deconstructor
         clear();
         delete head;
         delete headFree;
@@ -157,6 +140,27 @@ public:
 };  // end PSLL
 
 /******************************************
+ *   constructor
+ ******************************************/
+template <typename L>
+PSLL<L>::PSLL() {
+    head = nullptr;
+    tail = nullptr;
+    headFree = nullptr;
+}
+
+/******************************************
+ *   copy constructor
+ ******************************************/
+template <typename L>
+PSLL<L>::PSLL(const PSLL &obj) {
+    *head = *obj.head;
+    *tail = *obj.tail;
+    *headFree = *obj.headFree;
+}
+
+
+/******************************************
  *   insert
  ******************************************/
 template <typename L>
@@ -165,7 +169,7 @@ void PSLL<L>::insert(L element, size_t position) {
     Node<L>* next = head;
     size_t i = 0;
     
-    if (is_full()) {  // free list empty?
+    if (!length_free_list()) {  // free list empty?
         allocate_node();
     }
     
@@ -205,7 +209,7 @@ void PSLL<L>::insert(L element, size_t position) {
  ******************************************/
 template <typename L>
 void PSLL<L>::push_back(L element) {
-    if (is_full()) {  // free list empty?
+    if (!length_free_list()) {  // free list empty?
         allocate_node();
     }
     
@@ -229,7 +233,7 @@ void PSLL<L>::push_back(L element) {
  ******************************************/
 template <typename L>
 void PSLL<L>::push_front(L element) {
-    if (is_full()) {  // free list empty?
+    if (!length_free_list()) {  // free list empty?
         allocate_node();
     }
     
@@ -390,11 +394,14 @@ bool PSLL<L>::is_empty() {
  ******************************************/
 template <typename L>
 bool PSLL<L>::is_full() {
+    return false;
+    /*
     if (length_free_list()) {
         return false;
     } else {
         return true;
     }
+    */
 }
 
 /******************************************

@@ -19,16 +19,15 @@ template <typename L>
 class SDAL : public List<L> {
     
 private:
-    //L* array;
     L* data;
     size_t tail;
     size_t init_size;
     size_t curr_size;
-    //bool empty;
     
 public:
-    SDAL(size_t len = 50);
-    ~SDAL();
+    SDAL(size_t len = 50);  // constructor
+    SDAL(const SDAL &obj);  // copy constructor
+    ~SDAL();    // deconstructor
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -147,7 +146,17 @@ SDAL<L>::SDAL(size_t len) {
     curr_size = len;
     tail = 0;
     data = new L[init_size+1];
-    //empty = true;
+}
+
+/******************************************
+ *   copy constructor
+ ******************************************/
+template <typename L>
+SDAL<L>::SDAL(const SDAL &obj) {
+    init_size = obj.init_size;
+    curr_size = obj.curr_size;
+    tail = obj.tail;
+    *data = *obj.data;
 }
 
 /******************************************
@@ -357,11 +366,14 @@ bool SDAL<L>::is_empty() {
  ******************************************/
 template <typename L>
 bool SDAL<L>::is_full() {
+    //return false;
+    
     if (length() == curr_size) {
         return true;
     } else {
         return false;
     }
+    
 }
 
 /******************************************
@@ -435,6 +447,7 @@ void SDAL<L>::enlarge_array() {
     }
     delete[] data;
     data = newArray;
+    curr_size = int(1.5*curr_size);
 }
 
 /******************************************

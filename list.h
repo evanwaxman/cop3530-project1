@@ -9,7 +9,7 @@
 #ifndef list_h
 #define list_h
 
-#define ARRAYSIZE 10
+#define ARRAYSIZE 50
 
 namespace cop3530 {
     

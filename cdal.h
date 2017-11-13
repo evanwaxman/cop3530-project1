@@ -22,8 +22,9 @@ private:
     size_t tail;
     
 public:
-    CDAL();
-    ~CDAL();
+    CDAL();     // constructor
+    CDAL(const CDAL &obj);  // copy constructor
+    ~CDAL();    // deconstructor
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -60,7 +61,6 @@ public:
         
     private:
         L* here;
-        //size_t index;
         
     public:
         explicit CDAL_Iter( ArrayNode<L>* start = nullptr ) : here( start->ElementAddr(0) ) {}
@@ -145,6 +145,16 @@ template <typename L>
 CDAL<L>::CDAL() {
     data = nullptr;
     tail = 0;
+}
+
+/******************************************
+ *   copy constructor
+ ******************************************/
+template <typename L>
+CDAL<L>::CDAL(const CDAL &obj) {
+    //data = new ArrayNode<L>*;
+    *data = *obj.data;
+    tail = obj.tail;
 }
 
 /******************************************
@@ -303,10 +313,14 @@ L CDAL<L>::replace(L element, size_t position) {
             currArrayNode = currArrayNode->Next();
         }
         
+        // store old element in temp
+        L temp = currArrayNode->Element(posArrayIndex);
+        
         // replace element
         currArrayNode->editElement(posArrayIndex, element);
         
-        return currArrayNode->Element(posArrayIndex);
+        //return currArrayNode->Element(posArrayIndex);
+        return temp;
     }
 }
 

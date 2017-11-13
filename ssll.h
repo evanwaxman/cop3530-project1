@@ -22,11 +22,9 @@ private:
     Node<L>* tail;
     
 public:
-    SSLL() : head(nullptr), tail(nullptr) {};
-    ~SSLL() {
-        clear();
-        delete head;
-    }
+    SSLL();   // constuctor
+    SSLL(const SSLL &obj);  // copy constructor
+    ~SSLL();    // deconstructor
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -134,24 +132,29 @@ public:
 /******************************************
  *   constructor
  ******************************************/
-/*
 template <typename L>
 SSLL<L>::SSLL() {
-    head = NULL;
-    tail = NULL;
+    head = nullptr;
+    tail = nullptr;
 }
-*/
+
+/******************************************
+ *   copy constructor
+ ******************************************/
+template <typename L>
+SSLL<L>::SSLL(const SSLL &obj) {
+    *head = *obj.head;
+    *tail = *obj.tail;
+}
 
 /******************************************
  *   destructer
  ******************************************/
-/*
 template <typename L>
 SSLL<L>::~SSLL() {
     clear();
     delete head;
 }
-*/
 
 /******************************************
  *   insert
