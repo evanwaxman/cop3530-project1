@@ -18,8 +18,8 @@
 #include "cdal.h"
 
 //#define TEST_SSLL 1
-#define TEST_PSSL 1
-//#define TEST_SDAL 1
+//#define TEST_PSSL 1
+#define TEST_SDAL 1
 //#define TEST_CDAL 1
 
 using namespace cop3530;
@@ -52,19 +52,20 @@ char insert(List<char>& list, char element, size_t position) {
  *   replace
  ******************************************/
 char replace(List<char>& list, char element, size_t position) {
-    list.replace(element, position);
-    return list.item_at(position);
+    return list.replace(element, position);
 }
 
 /******************************************
  *   remove
  ******************************************/
 char remove(List<char>& list, size_t position) {
-    list.remove(position);
+    return list.remove(position);
+    /*
     if (position == (list.length())) {
         position--;
     }
     return list.item_at(position);
+    */
 }
 
 /******************************************
@@ -163,12 +164,12 @@ TEST_CASE( "Subtract components from the list", "[subtract]" ) {
         value++;
     }
     
-    REQUIRE( replace(list,'x',0) == 'x' );
-    REQUIRE( replace(list,'z',9) == 'z' );
-    REQUIRE( replace(list,'y',4) == 'y' );
-    REQUIRE( remove(list,0) == 'b' );
-    REQUIRE( remove(list,8) == 'i' );
-    REQUIRE( remove(list,3) == 'f' );
+    REQUIRE( replace(list,'x',0) == 'a' );
+    REQUIRE( replace(list,'z',9) == 'j' );
+    REQUIRE( replace(list,'y',4) == 'e' );
+    REQUIRE( remove(list,0) == 'x' );
+    REQUIRE( remove(list,8) == 'z' );
+    REQUIRE( remove(list,3) == 'y' );
     REQUIRE( pop_front(list) == 'b' );
     REQUIRE( pop_back(list) == 'i' );
     
@@ -207,20 +208,28 @@ TEST_CASE( "Check capacity of list", "[capacity]" ) {
     #elif TEST_PSSL
         PSLL<char> list = PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>(10);
+        SDAL<char> list = SDAL<char>();
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
     #endif
     
     char value = 'a';
-    for (size_t i=0; i<5; i++) {
+    for (size_t i=0; i<200; i++) {
         push_back(list,value);
-        value++;
     }
     
     REQUIRE( is_empty(list) == 0 );
     REQUIRE( is_full(list) == 0 );
-    
+
+    REQUIRE( peek_front(list) == 'a' );
+    REQUIRE( peek_back(list) == 'a' );
+    REQUIRE( item_at(list,49) == 'a' );
+    REQUIRE( item_at(list,50) == 'a' );
+    REQUIRE( insert(list,'b',100) == 'b' );
+    REQUIRE( insert(list,'c',0) == 'c' );
+    REQUIRE( remove(list,0) == 'c' );
+    REQUIRE( remove(list,100) == 'b' );
+
     list.clear();   // deallocate list
     
     REQUIRE( is_empty(list) == 1 );
