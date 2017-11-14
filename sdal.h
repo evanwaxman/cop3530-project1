@@ -179,14 +179,6 @@ void SDAL<L>::insert(L element, size_t position) {
             enlarge_array();
         }
         
-    /*    else if (is_empty()) {
-            data[0] = element;
-            //tail = 0;
-            //empty = false;
-            return;
-        }
-    */
-        
         if (position != (tail-1)) {
             L* oldArray = data;
             data = new L[curr_size];
@@ -217,14 +209,6 @@ void SDAL<L>::push_back(L element) {
     if (is_full()) {
         enlarge_array();
     }
-/*
-    else if (is_empty()) {
-        data[0] = element;
-        tail = 0;
-        //empty = false;
-        return;
-    }
- */
     data[tail] = element;
     tail++;
 }
@@ -237,15 +221,6 @@ void SDAL<L>::push_front(L element) {
     if (is_full()) {
         enlarge_array();
     }
-/*
-    else if (is_empty()) {
-        //data = array;
-        data[0] = element;
-        tail = 0;
-        //empty = false;
-        return;
-    }
-*/
     
     L* oldArray = data;
     data = new L[curr_size];
