@@ -16,11 +16,13 @@
 #include "psll.h"
 #include "sdal.h"
 #include "cdal.h"
+#include "cbl.h"
 
 //#define TEST_SSLL 1
 //#define TEST_PSSL 1
-#define TEST_SDAL 1
+//#define TEST_SDAL 1
 //#define TEST_CDAL 1
+#define TEST_CBL 1
 
 using namespace cop3530;
 
@@ -134,6 +136,8 @@ TEST_CASE( "Add components to list", "[add]" ) {
         SDAL<char> list = SDAL<char>(10);
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
+    #elif TEST_CBL
+        CBL<char> list = CBL<char>(10);
     #endif
     
     REQUIRE( push_back(list,'c') == 'c' );
@@ -156,6 +160,8 @@ TEST_CASE( "Subtract components from the list", "[subtract]" ) {
         SDAL<char> list = SDAL<char>(10);
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
+    #elif TEST_CBL
+        CBL<char> list = CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -185,6 +191,8 @@ TEST_CASE( "View components in list", "[view]" ) {
         SDAL<char> list = SDAL<char>(10);
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
+    #elif TEST_CBL
+        CBL<char> list = CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -211,6 +219,8 @@ TEST_CASE( "Check capacity of list", "[capacity]" ) {
         SDAL<char> list = SDAL<char>();
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
+    #elif TEST_CBL
+        CBL<char> list = CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -245,6 +255,8 @@ TEST_CASE( "Check contents of list", "[contents]" ) {
         SDAL<char> list = SDAL<char>(10);
     #elif TEST_CDAL
         CDAL<char> list = CDAL<char>();
+    #elif TEST_CBL
+        CBL<char> list = CBL<char>(10);
     #endif
     
     char value = 'a';
