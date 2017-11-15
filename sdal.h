@@ -67,42 +67,48 @@ public:
         
     private:
         L* here;
-        //size_t index;
+        size_t curr_index;
+        size_t end_index;
         
     public:
-        explicit SDAL_Iter( L* start = nullptr ) : here( start ) {}
-        SDAL_Iter( L* src, size_t i) : here( &src[i+1] ) {}
+        explicit SDAL_Iter( L* src = nullptr, size_t i = 0, size_t c = 0, size_t e = 0) : here( &src[i] ), curr_index( c ), end_index( e ) {}
+        SDAL_Iter(const SDAL_Iter& src) : here( src.here ), curr_index( src.curr_index ), end_index( src.end_index ) {}
         
         static self_type make_begin( SDAL& n ) {
-            self_type i( n.data );
+            self_type i( n.data, 0, 0, n.tail );
             return i;
         }
         static self_type make_end( SDAL& n ) {
-            //Node<L>* endptr = nullptr;
-            self_type i( n.data, n.tail );
+            self_type i( n.data, n.tail, n.tail, n.tail );
             return i;
         }
         
-        value_type operator*() const { return here->Data(); }
+        reference operator*() const { return *here; }
         DataL* operator->() const { return here; }
         
         self_reference operator=( SDAL_Iter const& src ) {
             if (this != &src) {
                 here = src.here;
+                curr_index = src.curr_index;
+                end_index = src.end_index;
             }
             return (*this);
         }
         
         self_reference operator++() {
-            if (here) {
+            if (curr_index != end_index) {
                 here++;
+                curr_index++;
             }
             return (*this);
-        } // preincre ment
+        } // preincrement
         
         self_type operator++(int) {
             self_type tmp(*this);
-            this++;
+            if (curr_index != end_index) {
+                here++;
+                curr_index++;
+            }
             return tmp;
         } // postincrement
         
@@ -112,9 +118,6 @@ public:
         bool operator!=( SDAL_Iter<DataL> const& rhs) const {
             return (here != rhs.here);
         }
-        
-        // return iterator data function
-        value_type data() { return *here; }
         
     }; // end SDAL_Iter
     
