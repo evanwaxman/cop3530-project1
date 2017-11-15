@@ -74,7 +74,6 @@ public:
     public:
         explicit PSLL_Iter( Node<L>* start = nullptr ) : here( start ) {}
         PSLL_Iter( const PSLL_Iter& src ) : here( src.here ) {}
-        //PSLL_Iter( const Node<L>* end ) : here( end->Data() ) {}
         
         static self_type make_begin( PSLL& n ) {
             self_type i( n.head );
@@ -86,7 +85,7 @@ public:
             return i;
         }
         
-        value_type operator*() const { return here->Data(); }
+        reference operator*() const { return here->data; }
         Node<DataL>* operator->() const { return here; }
         
         self_reference operator=( PSLL_Iter const& src ) {
