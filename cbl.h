@@ -51,6 +51,90 @@ public:
     void reduce_array(void);
     size_t dec_index(size_t &i);
     size_t inc_index(size_t &i);
+    
+public:
+    template <typename DataL>
+    class CBL_Iter {
+    public:
+        // type aliases required for C++ iterator compatibility
+        using value_type = DataL;
+        using reference = DataL&;
+        using pointer = DataL*;
+        using difference_type = std::ptrdiff_t;
+        using iterator_category = std::forward_iterator_tag;
+        
+        // type aliases for prettier code
+        using self_type = CBL_Iter;
+        using self_reference = CBL_Iter&;
+        
+    private:
+        L* here;
+        size_t curr_index;
+        size_t size;
+        
+    public:
+        explicit CBL_Iter( L* src = nullptr, size_t h = 0, size_t c = 0, size_t s = 0) : here( &src[h] ), curr_index( c ), size( s ) {}
+        CBL_Iter(const CBL_Iter& src) : here( src.here ), curr_index( src.curr_index ), size( src.size ) {}
+        
+        static self_type make_begin( CBL& n ) {
+            self_type i( n.data, n.head, n.head, n.curr_size );
+            return i;
+        }
+        static self_type make_end( CBL& n ) {
+            self_type i( n.data, n.head, n.tail, n.curr_size );
+            return i;
+        }
+        
+        reference operator*() const { return here[curr_index]; }
+        DataL* operator->() const { return here; }
+        
+        self_reference operator=( CBL_Iter const& src ) {
+            if (this != &src) {
+                here = src.here;
+                curr_index = src.curr_index;
+                size = src.size;
+            }
+            return (*this);
+        }
+        
+        self_reference operator++() {
+            curr_index = (++curr_index) % size;
+            return (*this);
+        } // preincrement
+        
+        self_type operator++(int) {
+            self_type tmp(*this);
+            curr_index = (++curr_index) % size;
+            return tmp;
+        } // postincrement
+        
+        bool operator==( CBL_Iter<DataL> const& rhs ) const {
+            return (here[curr_index] == rhs.here[curr_index]);
+        }
+        bool operator!=( CBL_Iter<DataL> const& rhs) const {
+            return (here[curr_index] != rhs.here[curr_index]);
+        }
+        
+    }; // end CBL_Iter
+    
+public:
+    //--------------------------------------------------
+    // type aliases
+    //--------------------------------------------------
+    //using size_t = std::size_t; // you may comment out this line if your compiler complains
+    using value_type = L;
+    using iterator = CBL_Iter<L>;
+    using const_iterator = CBL_Iter<L const>;
+    
+    // iterators over a non-const List
+    iterator begin() { return iterator::make_begin(*this); }
+    iterator end() { return iterator::make_end(*this); }
+    
+    // iterators over a const List
+    const_iterator begin() const { return const_iterator::make_begin(*this); }
+    const_iterator end() const { return const_iterator::make_end(*this); }
+
+    
 };  // end CBL class
 
 /******************************************
@@ -144,13 +228,6 @@ void CBL<L>::insert(L element, size_t position) {
 template <typename L>
 void CBL<L>::push_back(L element) {
     return insert(element, length());
-    /*
-    if (is_full()) {
-        enlarge_array();
-    }
-    data[tail] = element;
-    tail++;
-    */
 }
 
 /******************************************
@@ -158,30 +235,7 @@ void CBL<L>::push_back(L element) {
  ******************************************/
 template <typename L>
 void CBL<L>::push_front(L element) {
-    //size_t i = head;
-    //i = dec_index(i);
-    //return insert(element, i);
-    
     return insert(element, 0);
-    
-    /*
-    if (is_full()) {
-        enlarge_array();
-    }
-    
-    L* oldArray = data;
-    data = new L[curr_size];
-    
-    data[0] = element;
-    
-    for (size_t i=1; i<tail; i++) {
-        data[i] = oldArray[i-1];
-    }
-    
-    delete[] oldArray;
-    
-    tail++;
-    */
 }
 
 /******************************************
@@ -233,15 +287,7 @@ L CBL<L>::remove(size_t position) {
     if (position > concept_tail) {
         throw std::runtime_error("CBL<L>.remove(): remove position is out of list bounds.");
     }
-    
-    /*
-    if ((head > tail) && (position < head) && (position >= tail)) {
-        throw std::runtime_error("CBL<L>.remove(): remove position is out of list bounds.");
-    } else if ((head < tail) && (position >= tail)) {
-        throw std::runtime_error("CBL<L>.remove(): remove position is out of list bounds.");
-    }
-    */
-     
+
     size_t end = tail;
     if (position == (concept_tail - 1)) {     // remove at end of list
         oldData = data[dec_index(tail)];
@@ -281,8 +327,6 @@ L CBL<L>::remove(size_t position) {
  ******************************************/
 template <typename L>
 L CBL<L>::pop_back() {
-    //size_t i = tail;
-    //i = dec_index(i);
     return remove(length()-1);
 }
 
@@ -314,15 +358,6 @@ L CBL<L>::item_at(size_t position) {
     } else {
         return data[actual_position];
     }
-/*
-    if ((head > tail) && (position < head) && (position >= tail)) {
-        throw std::runtime_error("CBL<L>.item_at(): item_at position is out of list bounds.");
-    } else if ((head < tail) && (position >= tail)) {
-        throw std::runtime_error("CBL<L>.item_at(): item_at position is out of list bounds.");
-    } else {
-        return data[position];
-    }
-*/
 }
 
 /******************************************
@@ -385,16 +420,6 @@ size_t CBL<L>::length() {
  ******************************************/
 template <typename L>
 void CBL<L>::clear() {
-/*
-    size_t relative_i = tail;
-    dec_index(relative_i);
-    //for (size_t i = tail-1; i > 0; i--) {
-    while (relative_i != head) {
-        remove(relative_i);
-        dec_index(relative_i);
-    }
-    remove(head);
- */
     head = 0;
     tail = 0;
 }
@@ -405,7 +430,6 @@ void CBL<L>::clear() {
 template <typename L>
 bool CBL<L>::contains(L element) {
     size_t relative_i = head;
-    //for (size_t i=0; i<tail; i++) {
     while (relative_i != tail) {
         if (data[relative_i] == element) {
             return true;
@@ -449,18 +473,19 @@ L* CBL<L>::contents() {
  ******************************************/
 template <typename L>
 void CBL<L>::enlarge_array() {
-    L* newArray = new L[int(1.5*curr_size)];
+    size_t old_size = curr_size;
+    curr_size = int(1.5*curr_size);
+    L* newArray = new L[curr_size];
     
-    size_t relative_i = head;
-    //for (size_t i=0; i<curr_size; i++) {
-    while (relative_i != tail) {
-        newArray[relative_i] = data[relative_i];
-        inc_index(relative_i);
+    size_t i = head;
+    while (i % old_size != tail) {
+        newArray[i % curr_size] = data[i % old_size];
+        i++;
     }
     
+    tail = i % curr_size;
     delete[] data;
     data = newArray;
-    curr_size = int(1.5*curr_size);
 }
 
 /******************************************
@@ -468,6 +493,23 @@ void CBL<L>::enlarge_array() {
  ******************************************/
 template <typename L>
 void CBL<L>::reduce_array() {
+    size_t old_size = curr_size;
+    curr_size = int(0.75*curr_size);
+    L* newArray = new L[curr_size];
+    
+    size_t i = head;
+    while (i % old_size != tail) {
+        newArray[i % curr_size] = data[i % old_size];
+        i++;
+    }
+    
+    head = head % curr_size;
+    tail = i % curr_size;
+    delete[] data;
+    data = newArray;
+    
+    
+    /*
     curr_size = int(0.75*curr_size);
     L* newArray = new L[curr_size];
     
@@ -479,6 +521,7 @@ void CBL<L>::reduce_array() {
     
     delete[] data;
     data = newArray;
+     */
 }
 
 /******************************************
