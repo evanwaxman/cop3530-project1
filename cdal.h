@@ -60,19 +60,15 @@ public:
         using self_reference = CDAL_Iter&;
         
     private:
-        L* here;
+        size_t here;
         ArrayNode<L>* node;
-        size_t end_index;
-        size_t curr_index;
         
     public:
-        explicit CDAL_Iter(ArrayNode<L>* src = nullptr, size_t i = 0, size_t e = 0) : here( src->ElementAddr(i) ), node( src ), end_index( e ), curr_index( 0 ) {}
-        CDAL_Iter(const CDAL_Iter& src) : here( src.here ), node( src.node ), end_index( src.end_index ), curr_index( src.curr_index ) {}
+        explicit CDAL_Iter(ArrayNode<L>* src = nullptr, size_t i = 0) : here( i ), node( src ) {}
+        CDAL_Iter(const CDAL_Iter& src) : here( src.here ), node( src.node ) {}
         
         static self_type make_begin( CDAL& n ) {
-            size_t maxArrayBin = (n.tail-1) / ARRAYSIZE;      // get max array bin num
-            size_t maxArrayIndex = (n.tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
-            self_type i( n.data, 0, maxArrayIndex );
+            self_type i( n.data, 0 );
             return i;
         }
         static self_type make_end( CDAL& n ) {
@@ -85,36 +81,29 @@ public:
                 currArrayNode = currArrayNode->Next();
             }
             
-            self_type i( currArrayNode, maxArrayIndex, maxArrayIndex );
+            self_type i( currArrayNode, maxArrayIndex );
             return i;
         }
         
-        reference operator*() const { return *here; }
+        reference operator*() const { return (node->array[here]); }
         ArrayNode<L>* operator->() const { return node; }
         
         self_reference operator=( CDAL_Iter const& src ) {
             if (this != &src) {
                 here = src.here;
                 node = src.node;
-                end_index = src.end_index;
-                curr_index = src.curr_index;
             }
             return (*this);
         }
         
         self_reference operator++() {
-            if (node->Next()) {
-                if (curr_index != (ARRAYSIZE-1)) {
-                    here++;
-                    curr_index++;
-                } else {
-                    node = node->Next();
-                    here = node->ElementAddr(0);
-                    curr_index = 0;
-                }
-            } else if (curr_index != end_index) {
+            if (here != (ARRAYSIZE-1)) {
                 here++;
-                curr_index++;
+            } else {
+                if (node->Next()) {
+                    node = node->Next();
+                    here = 0;
+                }
             }
             
             return (*this);
@@ -123,32 +112,24 @@ public:
         self_type operator++(int) {
             self_type tmp(*this);
             
-            if (node->Next()) {
-                if (curr_index != (ARRAYSIZE-1)) {
-                    here++;
-                    curr_index++;
-                } else {
-                    node = node->Next();
-                    here = node->ElementAddr(0);
-                    curr_index = 0;
-                }
-            } else if (curr_index != end_index) {
+            if (here != (ARRAYSIZE-1)) {
                 here++;
-                curr_index++;
+            } else {
+                if (node->Next()) {
+                    node = node->Next();
+                    here = 0;
+                }
             }
             
             return tmp;
         } // postincrement
         
         bool operator==( CDAL_Iter<DataL> const& rhs ) const {
-            return (here == rhs.here);
+            return (node->array[here] == rhs.node->array[here]);
         }
         bool operator!=( CDAL_Iter<DataL> const& rhs) const {
-            return (here != rhs.here);
+            return (node->array[here] != rhs.node->array[here]);
         }
-        
-        // return iterator data function
-        //value_type data() { return *here; }
         
     }; // end SDAL_Iter
     
