@@ -18,11 +18,11 @@
 #include "cdal.h"
 #include "cbl.h"
 
-//#define TEST_SSLL 1
+#define TEST_SSLL 1
 //#define TEST_PSSL 1
 //#define TEST_SDAL 1
 //#define TEST_CDAL 1
-#define TEST_CBL 1
+//#define TEST_CBL 1
 
 using namespace cop3530;
 
@@ -123,7 +123,193 @@ char is_full(List<char>& list) {
  *   contains
  ******************************************/
 char contains(List<char>& list, char element) {
+    //bool (*compare_ptr)(L, L) = &compare;
     return list.contains(element);
+}
+
+/******************************************
+ *   SSLL_iter
+ ******************************************/
+bool SSLL_iter() {
+    SSLL<char> list = SSLL<char>();
+
+    // fill list with values
+    char value = 'a';
+    for (size_t i=0; i<25; i++) {
+        push_back(list,value++);
+    }
+    
+    SSLL<char>::iterator iter = list.begin();
+    SSLL<char>::iterator end = list.end();
+    
+    size_t i = 0;
+    for ( ; iter != end ; ++iter ) {
+        if (*iter != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    
+    i = 0;
+    iter = list.begin();
+    for ( ; iter != end ; ++iter ) {
+        if (iter->Data() != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    
+    return true;
+}
+
+/******************************************
+ *   PSLL_iter
+ ******************************************/
+bool PSLL_iter() {
+    PSLL<char> list = PSLL<char>();
+    
+    // fill list with values
+    char value = 'a';
+    for (size_t i=0; i<25; i++) {
+        push_back(list,value++);
+    }
+    
+    PSLL<char>::iterator iter = list.begin();
+    PSLL<char>::iterator end = list.end();
+    
+    size_t i = 0;
+    for ( ; iter != end ; ++iter ) {
+        if (*iter != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    
+    i = 0;
+    iter = list.begin();
+    for ( ; iter != end ; ++iter ) {
+        if (iter->Data() != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    
+    return true;
+}
+
+/******************************************
+ *   SDAL_iter
+ ******************************************/
+bool SDAL_iter() {
+    SDAL<char> list = SDAL<char>();
+    
+    // fill list with values
+    char value = 'a';
+    for (size_t i=0; i<25; i++) {
+        push_back(list,value++);
+    }
+    
+    SDAL<char>::iterator iter = list.begin();
+    SDAL<char>::iterator end = list.end();
+    
+    size_t i = 0;
+    for ( ; iter != end ; ++iter ) {
+        if (*iter != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    /*
+    i = 0;
+    iter = list.begin();
+    for ( ; iter != end ; ++iter ) {
+        if (iter->Data() != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    */
+    return true;
+}
+
+/******************************************
+ *   CDAL_iter
+ ******************************************/
+bool CDAL_iter() {
+    CDAL<char> list = CDAL<char>();
+    
+    // fill list with values
+    char value = 'a';
+    for (size_t i=0; i<100; i++) {
+        push_back(list,value++);
+    }
+    
+    CDAL<char>::iterator iter = list.begin();
+    CDAL<char>::iterator end = list.end();
+    
+    size_t i = 0;
+    for ( ; iter != end ; ++iter ) {
+        if (*iter != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    
+     i = 0;
+     iter = list.begin();
+     for ( ; iter != end ; ++iter ) {
+         if (iter->Element(i) != item_at(list,i)) {
+             return false;
+         } else {
+             i++;
+         }
+     }
+    
+    return true;
+}
+
+/******************************************
+ *   CBL_iter
+ ******************************************/
+bool CBL_iter() {
+    CBL<char> list = CBL<char>();
+    
+    // fill list with values
+    char value = 'a';
+    for (size_t i=0; i<100; i++) {
+        push_back(list,value++);
+    }
+    
+    CBL<char>::iterator iter = list.begin();
+    CBL<char>::iterator end = list.end();
+    
+    size_t i = 0;
+    for ( ; iter != end ; ++iter ) {
+        if (*iter != item_at(list,i)) {
+            return false;
+        } else {
+            i++;
+        }
+    }
+    /*
+     i = 0;
+     iter = list.begin();
+     for ( ; iter != end ; ++iter ) {
+     if (iter->Data() != item_at(list,i)) {
+     return false;
+     } else {
+     i++;
+     }
+     }
+     */
+    return true;
 }
 
 
@@ -224,7 +410,10 @@ TEST_CASE( "Check capacity of list", "[capacity]" ) {
     #endif
     
     char value = 'a';
-    for (size_t i=0; i<200; i++) {
+    for (size_t i=0; i<100; i++) {
+        push_front(list,value);
+    }
+    for (size_t i=0; i<100; i++) {
         push_back(list,value);
     }
     
@@ -237,6 +426,8 @@ TEST_CASE( "Check capacity of list", "[capacity]" ) {
     REQUIRE( item_at(list,50) == 'a' );
     REQUIRE( insert(list,'b',100) == 'b' );
     REQUIRE( insert(list,'c',0) == 'c' );
+    REQUIRE( insert(list,'d',199) == 'd' );
+    REQUIRE( remove(list,199) == 'd' );
     REQUIRE( remove(list,0) == 'c' );
     REQUIRE( remove(list,100) == 'b' );
 
@@ -272,4 +463,25 @@ TEST_CASE( "Check contents of list", "[contents]" ) {
     }
     
     list.clear();   // deallocate list
+}
+
+TEST_CASE( "Test iterator functionality", "[iterators]" ) {
+    #ifdef TEST_SSLL
+        REQUIRE( SSLL_iter() == 1 );
+    
+    #elif TEST_PSSL
+        REQUIRE( PSLL_iter() == 1 );
+    
+    #elif TEST_SDAL
+        REQUIRE( SDAL_iter() == 1 );
+    
+    #elif TEST_CDAL
+        REQUIRE( CDAL_iter() == 1 );
+    
+    #elif TEST_CBL
+        REQUIRE( CBL_iter() == 1 );
+    #endif
+
+    
+    
 }
