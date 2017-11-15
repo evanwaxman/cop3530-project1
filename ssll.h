@@ -26,6 +26,8 @@ public:
     SSLL(const SSLL &obj);  // copy constructor
     ~SSLL();    // deconstructor
     
+    bool compare(L d1, L d2);
+    
     void insert(L element, size_t position) override;
     void push_back(L element) override;
     void push_front(L element) override;
@@ -40,6 +42,7 @@ public:
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
+    //bool contains(L element, bool (*compare)(L d1, L d2)) override;
     bool contains(L element) override;
     void print(void) override;
     L* contents(void) override;
@@ -77,10 +80,9 @@ public:
             return i;
         }
         
-        value_type operator*() const { return here->Data(); }
+        reference operator*() const { return here->data; }
         
-        //Node<DataL>* operator->() const { return here; }
-        Node<DataL>* operator->() const { return &(operator*()); }
+        Node<L>* operator->() const { return  here; }
         
         self_reference operator=( SSLL_Iter const& src ) {
             if (this != &src) {
@@ -398,10 +400,12 @@ void SSLL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
+//bool SSLL<L>::contains(L element, bool (*compare)(L d1, L d2)) {
 bool SSLL<L>::contains(L element) {
     Node<L>* curr = head;
     
     while (curr) {
+        //if ((*compare)(curr->Data(), element)) {
         if (curr->Data() == element) {
             return true;
         } else {
@@ -447,6 +451,15 @@ L* SSLL<L>::contents() {
     return contents_array;
 }
 
-//}
+/******************************************
+ *   compare
+ ******************************************/
+template <typename L>
+bool SSLL<L>::compare(L d1, L d2) {
+    if (d1 == d2) {
+        return true;
+    }
+    return false;
+}
 
 #endif /* ssll_h */
