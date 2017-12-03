@@ -24,7 +24,24 @@ private:
 public:
     CDAL();     // constructor
     CDAL(const CDAL &obj);  // copy constructor
+    CDAL(CDAL&& other);     // move constructor
+    CDAL& operator=(CDAL&& other) {     // move constructor
+        if (this != &other) {
+            delete data;
+            delete tail;
+            
+            *data = *other.data;
+            tail = other.tail;
+            
+            other.data = nullptr;
+            other.tail = 0;
+        }
+        
+        return *this;
+    }
     ~CDAL();    // deconstructor
+    
+    //bool compare(L d1, L d2) override;
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -33,14 +50,15 @@ public:
     L remove(size_t position) override;
     L pop_back(void) override;
     L pop_front(void) override;
-    L item_at(size_t position) override;
-    L peek_back(void) override;
-    L peek_front(void) override;
+    L& item_at(size_t position) override;
+    L& peek_back(void) override;
+    L& peek_front(void) override;
     bool is_empty(void) override;
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
-    bool contains(L element) override;
+    //bool contains(L element) override;
+    bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
     L* contents(void) override;
     
@@ -168,6 +186,18 @@ CDAL<L>::CDAL(const CDAL &obj) {
     //data = new ArrayNode<L>*;
     *data = *obj.data;
     tail = obj.tail;
+}
+
+/******************************************
+ *   move constructor
+ ******************************************/
+template <typename L>
+CDAL<L>::CDAL(CDAL&& other) {
+    *data = *other.data;
+    tail = other.tail;
+    
+    other.data = nullptr;
+    other.tail = 0;
 }
 
 /******************************************
@@ -434,7 +464,7 @@ L CDAL<L>::pop_front() {
  *   item_at
  ******************************************/
 template <typename L>
-L CDAL<L>::item_at(size_t position) {
+L& CDAL<L>::item_at(size_t position) {
     if (position > (tail-1)) {
         throw std::runtime_error("CDAL<L>.item_at(): item_at position is out of list bounds.");
     } else {
@@ -458,7 +488,7 @@ L CDAL<L>::item_at(size_t position) {
  *   peek_back
  ******************************************/
 template <typename L>
-L CDAL<L>::peek_back() {
+L& CDAL<L>::peek_back() {
     return item_at(tail-1);
 }
 
@@ -466,7 +496,7 @@ L CDAL<L>::peek_back() {
  *   peek_front
  ******************************************/
 template <typename L>
-L CDAL<L>::peek_front() {
+L& CDAL<L>::peek_front() {
     return item_at(0);
 }
 
@@ -522,7 +552,8 @@ void CDAL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
-bool CDAL<L>::contains(L element) {
+bool CDAL<L>::contains(L element, bool (*compare)(L, L)) {
+//bool CDAL<L>::contains(L element) {
     size_t maxArrayBin = (tail-1) / ARRAYSIZE;      // get max array bin num
     size_t maxArrayIndex = (tail-1) - (maxArrayBin * ARRAYSIZE);    // get index in max bin
     
@@ -530,7 +561,7 @@ bool CDAL<L>::contains(L element) {
     
     for (size_t i=0; i<maxArrayBin; i++) {
         for (size_t j=0; j<=ARRAYSIZE; j++) {
-            if (currArrayNode->Element(j) == element) {
+            if ((compare)(currArrayNode->Element(j), element)) {
                 return true;
             }
         }
@@ -538,7 +569,7 @@ bool CDAL<L>::contains(L element) {
     }
     
     for (size_t j=0; j<=maxArrayIndex; j++) {
-        if (currArrayNode->Element(j) == element) {
+        if ((compare)(currArrayNode->Element(j), element)) {
             return true;
         }
     }

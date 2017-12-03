@@ -25,9 +25,35 @@ private:
     size_t curr_size;
     
 public:
-    CBL(size_t len = 50);  // constructor
-    CBL(const CBL &obj);  // copy constructor
+    CBL(size_t len = 50);   // constructor
+    CBL(const CBL &obj);    // copy constructor
+    CBL(CBL&& other);       // move constructor
+    CBL& operator=(CBL&& other) {       // move assignment operator
+        if (this != &other) {
+            delete data;
+            delete head;
+            delete tail;
+            delete init_size;
+            delete curr_size;
+            
+            init_size = other.init_size;
+            curr_size = other.curr_size;
+            head = other.head;
+            tail = other.tail;
+            *data = *other.data;
+            
+            other.init_size = 0;
+            other.curr_size = 0;
+            other.head = 0;
+            other.tail = 0;
+            other.data = nullptr;
+        }
+        
+        return *this;
+    }
     ~CBL();    // deconstructor
+    
+    //bool compare(L d1, L d2) override;
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -36,14 +62,15 @@ public:
     L remove(size_t position) override;
     L pop_back(void) override;
     L pop_front(void) override;
-    L item_at(size_t position) override;
-    L peek_back(void) override;
-    L peek_front(void) override;
+    L& item_at(size_t position) override;
+    L& peek_back(void) override;
+    L& peek_front(void) override;
     bool is_empty(void) override;
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
-    bool contains(L element) override;
+    //bool contains(L element) override;
+    bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
     L* contents(void) override;
     
@@ -159,6 +186,24 @@ CBL<L>::CBL(const CBL &obj) {
     head = obj.head;
     tail = obj.tail;
     *data = *obj.data;
+}
+
+/******************************************
+ *   move constructor
+ ******************************************/
+template <typename L>
+CBL<L>::CBL(CBL&& other) {
+    init_size = other.init_size;
+    curr_size = other.curr_size;
+    head = other.head;
+    tail = other.tail;
+    *data = *other.data;
+    
+    other.init_size = 0;
+    other.curr_size = 0;
+    other.head = 0;
+    other.tail = 0;
+    other.data = nullptr;
 }
 
 /******************************************
@@ -342,7 +387,7 @@ L CBL<L>::pop_front() {
  *   item_at
  ******************************************/
 template <typename L>
-L CBL<L>::item_at(size_t position) {
+L& CBL<L>::item_at(size_t position) {
     // conceptual head and tail positions
     size_t concept_head = 0;
     size_t concept_tail = length();
@@ -364,7 +409,7 @@ L CBL<L>::item_at(size_t position) {
  *   peek_back
  ******************************************/
 template <typename L>
-L CBL<L>::peek_back() {
+L& CBL<L>::peek_back() {
     size_t i = tail;
     i = dec_index(i);
     return data[i];
@@ -374,7 +419,7 @@ L CBL<L>::peek_back() {
  *   peek_front
  ******************************************/
 template <typename L>
-L CBL<L>::peek_front() {
+L& CBL<L>::peek_front() {
     return data[head];
 }
 
@@ -428,10 +473,11 @@ void CBL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
-bool CBL<L>::contains(L element) {
+bool CBL<L>::contains(L element, bool (*compare)(L, L)) {
+//bool CBL<L>::contains(L element) {
     size_t relative_i = head;
     while (relative_i != tail) {
-        if (data[relative_i] == element) {
+        if ((compare)(data[relative_i], element)) {
             return true;
         }
         inc_index(relative_i);
@@ -507,21 +553,6 @@ void CBL<L>::reduce_array() {
     tail = i % curr_size;
     delete[] data;
     data = newArray;
-    
-    
-    /*
-    curr_size = int(0.75*curr_size);
-    L* newArray = new L[curr_size];
-    
-    size_t relative_i = head;
-    while (relative_i != tail) {
-        newArray[relative_i] = data[relative_i];
-        inc_index(relative_i);
-    }
-    
-    delete[] data;
-    data = newArray;
-     */
 }
 
 /******************************************

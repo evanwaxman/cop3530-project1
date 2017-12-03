@@ -26,8 +26,28 @@ private:
     
 public:
     PSLL();     // constuctor
-    PSLL(const PSLL &obj);   // copy constructor
+    PSLL(const PSLL &obj);  // copy constructor
+    PSLL(PSLL&& other);     // move constructor
+    PSLL& operator=(PSLL&& other) {     // move assignment operator
+        if (this != &other) {
+            delete head;
+            delete tail;
+            delete headFree;
+            
+            head = other.head;
+            tail = other.tail;
+            headFree = other.tail;
+            
+            other.head = nullptr;
+            other.tail = nullptr;
+            other.headFree = nullptr;
+        }
+        
+        return *this;
+    }
     ~PSLL();    // deconstructor
+    
+    //bool compare(L d1, L d2) override;
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -36,14 +56,15 @@ public:
     L remove(size_t position) override;
     L pop_back(void) override;
     L pop_front(void) override;
-    L item_at(size_t position) override;
-    L peek_back(void) override;
-    L peek_front(void) override;
+    L& item_at(size_t position) override;
+    L& peek_back(void) override;
+    L& peek_front(void) override;
     bool is_empty(void) override;
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
-    bool contains(L element) override;
+    //bool contains(L element) override;
+    bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
     L* contents(void) override;
     
@@ -152,6 +173,20 @@ PSLL<L>::PSLL(const PSLL &obj) {
     *head = *obj.head;
     *tail = *obj.tail;
     *headFree = *obj.headFree;
+}
+
+/******************************************
+ *   move constructor
+ ******************************************/
+template <typename L>
+PSLL<L>::PSLL(PSLL&& other) {
+    head = other.head;
+    tail = other.tail;
+    headFree = other.tail;
+    
+    other.head = nullptr;
+    other.tail = nullptr;
+    other.headFree = nullptr;
 }
 
 /******************************************
@@ -352,7 +387,7 @@ L PSLL<L>::pop_front() {
  *   item_at
  ******************************************/
 template <typename L>
-L PSLL<L>::item_at(size_t position) {
+L& PSLL<L>::item_at(size_t position) {
     Node<L>* curr = head;
     size_t i = 0;
     
@@ -370,7 +405,7 @@ L PSLL<L>::item_at(size_t position) {
  *   peek_back
  ******************************************/
 template <typename L>
-L PSLL<L>::peek_back() {
+L& PSLL<L>::peek_back() {
     return tail->Data();
 }
 
@@ -378,7 +413,7 @@ L PSLL<L>::peek_back() {
  *   peek_front
  ******************************************/
 template <typename L>
-L PSLL<L>::peek_front() {
+L& PSLL<L>::peek_front() {
     return head->Data();
 }
 
@@ -444,11 +479,12 @@ void PSLL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
-bool PSLL<L>::contains(L element) {
+bool PSLL<L>::contains(L element, bool (*compare)(L, L)) {
+//bool PSLL<L>::contains(L element) {
     Node<L>* curr = head;
     
     while (curr) {
-        if (curr->Data() == element) {
+        if ((compare)(curr->Data(), element)) {
             return true;
         } else {
             curr = curr->Next();

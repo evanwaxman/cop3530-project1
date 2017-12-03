@@ -27,7 +27,30 @@ private:
 public:
     SDAL(size_t len = 50);  // constructor
     SDAL(const SDAL &obj);  // copy constructor
+    SDAL(SDAL&& other);     // move constructor
+    SDAL& operator=(SDAL&& other) {     // move assignment operator
+        if (this != &other) {
+            delete data;
+            delete tail;
+            delete init_size;
+            delete curr_size;
+            
+            init_size = other.init_size;
+            curr_size = other.curr_size;
+            tail = other.tail;
+            *data = *other.data;
+            
+            other.init_size = 0;
+            other.curr_size = 0;
+            other.tail = 0;
+            other.data = nullptr;
+        }
+        
+        return *this;
+    }
     ~SDAL();    // deconstructor
+    
+    //bool compare(L d1, L d2) override;
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -36,14 +59,15 @@ public:
     L remove(size_t position) override;
     L pop_back(void) override;
     L pop_front(void) override;
-    L item_at(size_t position) override;
-    L peek_back(void) override;
-    L peek_front(void) override;
+    L& item_at(size_t position) override;
+    L& peek_back(void) override;
+    L& peek_front(void) override;
     bool is_empty(void) override;
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
-    bool contains(L element) override;
+    //bool contains(L element) override;
+    bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
     L* contents(void) override;
     
@@ -160,6 +184,22 @@ SDAL<L>::SDAL(const SDAL &obj) {
     curr_size = obj.curr_size;
     tail = obj.tail;
     *data = *obj.data;
+}
+
+/******************************************
+ *   move constructor
+ ******************************************/
+template <typename L>
+SDAL<L>::SDAL(SDAL&& other) {
+    init_size = other.init_size;
+    curr_size = other.curr_size;
+    tail = other.tail;
+    *data = *other.data;
+    
+    other.init_size = 0;
+    other.curr_size = 0;
+    other.tail = 0;
+    other.data = nullptr;
 }
 
 /******************************************
@@ -309,7 +349,7 @@ L SDAL<L>::pop_front() {
  *   item_at
  ******************************************/
 template <typename L>
-L SDAL<L>::item_at(size_t position) {
+L& SDAL<L>::item_at(size_t position) {
     return data[position];
 }
 
@@ -317,7 +357,7 @@ L SDAL<L>::item_at(size_t position) {
  *   peek_back
  ******************************************/
 template <typename L>
-L SDAL<L>::peek_back() {
+L& SDAL<L>::peek_back() {
     return data[tail-1];
 }
 
@@ -325,7 +365,7 @@ L SDAL<L>::peek_back() {
  *   peek_front
  ******************************************/
 template <typename L>
-L SDAL<L>::peek_front() {
+L& SDAL<L>::peek_front() {
     return data[0];
 }
 
@@ -379,9 +419,10 @@ void SDAL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
-bool SDAL<L>::contains(L element) {
+bool SDAL<L>::contains(L element, bool (*compare)(L d1, L d2)) {
+//bool SDAL<L>::contains(L element) {
     for (size_t i=0; i<tail; i++) {
-        if (data[i] == element) {
+        if ((compare)(data[i], element)) {
             return true;
         }
     }

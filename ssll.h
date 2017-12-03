@@ -24,9 +24,25 @@ private:
 public:
     SSLL();   // constuctor
     SSLL(const SSLL &obj);  // copy constructor
+    SSLL(SSLL&& other);     // move constructor
+    SSLL& operator=(SSLL&& other) {     // move assignment operator
+        if (this != &other) {
+            delete head;
+            delete tail;
+            
+            *head = *other.head;
+            *tail = *other.tail;
+            
+            other.head = nullptr;
+            other.tail = nullptr;
+        }
+        
+        return *this;
+    }
     ~SSLL();    // deconstructor
     
-    bool compare(L d1, L d2);
+    //bool compare(L d1, L d2) override;
+    //bool (*compare_ptr)(int, int) = &compare;
     
     void insert(L element, size_t position) override;
     void push_back(L element) override;
@@ -35,15 +51,15 @@ public:
     L remove(size_t position) override;
     L pop_back(void) override;
     L pop_front(void) override;
-    L item_at(size_t position) override;
-    L peek_back(void) override;
-    L peek_front(void) override;
+    L& item_at(size_t position) override;
+    L& peek_back(void) override;
+    L& peek_front(void) override;
     bool is_empty(void) override;
     bool is_full(void) override;
     size_t length(void) override;
     void clear(void) override;
-    //bool contains(L element, bool (*compare)(L d1, L d2)) override;
-    bool contains(L element) override;
+    bool contains(L element, bool (*compare)(L, L)) override;
+    //bool contains(L element) override;
     void print(void) override;
     L* contents(void) override;
     
@@ -147,6 +163,18 @@ template <typename L>
 SSLL<L>::SSLL(const SSLL &obj) {
     *head = *obj.head;
     *tail = *obj.tail;
+}
+
+/******************************************
+ *   move constructor
+ ******************************************/
+template <typename L>
+SSLL<L>::SSLL(SSLL&& other) {
+    *head = *other.head;
+    *tail = *other.tail;
+    
+    other.head = nullptr;
+    other.tail = nullptr;
 }
 
 /******************************************
@@ -314,7 +342,7 @@ L SSLL<L>::pop_front() {
  *   item_at
  ******************************************/
 template <typename L>
-L SSLL<L>::item_at(size_t position) {
+L& SSLL<L>::item_at(size_t position) {
     Node<L>* curr = head;
     size_t i = 0;
     
@@ -332,7 +360,7 @@ L SSLL<L>::item_at(size_t position) {
  *   peek_back
  ******************************************/
 template <typename L>
-L SSLL<L>::peek_back() {
+L& SSLL<L>::peek_back() {
     return tail->Data();
 }
 
@@ -340,7 +368,7 @@ L SSLL<L>::peek_back() {
  *   peek_front
  ******************************************/
 template <typename L>
-L SSLL<L>::peek_front() {
+L& SSLL<L>::peek_front() {
     return head->Data();
 }
 
@@ -400,13 +428,13 @@ void SSLL<L>::clear() {
  *   contains
  ******************************************/
 template <typename L>
-//bool SSLL<L>::contains(L element, bool (*compare)(L d1, L d2)) {
-bool SSLL<L>::contains(L element) {
+bool SSLL<L>::contains(L element, bool (*compare)(L, L)) {
+//bool SSLL<L>::contains(L element) {
     Node<L>* curr = head;
     
     while (curr) {
-        //if ((*compare)(curr->Data(), element)) {
-        if (curr->Data() == element) {
+        if ((compare)(curr->Data(), element)) {
+        //if (curr->Data() == element) {
             return true;
         } else {
             curr = curr->Next();
@@ -449,17 +477,6 @@ L* SSLL<L>::contents() {
         curr = curr->Next();
     }
     return contents_array;
-}
-
-/******************************************
- *   compare
- ******************************************/
-template <typename L>
-bool SSLL<L>::compare(L d1, L d2) {
-    if (d1 == d2) {
-        return true;
-    }
-    return false;
 }
 
 #endif /* ssll_h */

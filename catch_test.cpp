@@ -18,11 +18,11 @@
 #include "cdal.h"
 #include "cbl.h"
 
-#define TEST_SSLL 1
+//#define TEST_SSLL 1
 //#define TEST_PSSL 1
 //#define TEST_SDAL 1
 //#define TEST_CDAL 1
-//#define TEST_CBL 1
+#define TEST_CBL 1
 
 using namespace cop3530;
 
@@ -120,11 +120,22 @@ char is_full(List<char>& list) {
 }
 
 /******************************************
+ *   compare
+ ******************************************/
+template <typename L>
+bool compare(L d1, L d2) {
+    if (d1 == d2) {
+        return true;
+    }
+    return false;
+}
+
+/******************************************
  *   contains
  ******************************************/
 char contains(List<char>& list, char element) {
-    //bool (*compare_ptr)(L, L) = &compare;
-    return list.contains(element);
+    //bool (*compare_ptr)(char, char) = compare();
+    return list.contains(element,*compare<char>);
 }
 
 /******************************************

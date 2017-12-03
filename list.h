@@ -24,23 +24,25 @@ namespace cop3530 {
         virtual L remove(size_t position) = 0;
         virtual L pop_back(void) = 0;
         virtual L pop_front(void) = 0;
-        virtual L item_at(size_t position) = 0;
-        virtual L peek_back(void) = 0;
-        virtual L peek_front(void) = 0;
+        virtual L& item_at(size_t position) = 0;
+        virtual L& peek_back(void) = 0;
+        virtual L& peek_front(void) = 0;
         virtual bool is_empty(void) = 0;
         virtual bool is_full(void) = 0;
         virtual size_t length(void) = 0;
         virtual void clear(void) = 0;
-        virtual bool contains(L element) = 0;
+        virtual bool contains(L element, bool (*compare)(L, L)) = 0;
+        //virtual bool contains(L element) = 0;
         virtual void print(void) = 0;
         virtual L* contents(void) = 0;
+        //virtual bool compare(L d1, L d2) = 0;
+        
         virtual ~List() {};
     };
     
     template <typename L>
     class Node {
     private:
-        L data;
         Node* next;
         
     public:
@@ -49,13 +51,15 @@ namespace cop3530 {
         void setNext(Node* new_next) { next = new_next; };
         L Data() { return data; };
         Node* Next() { return next; };
+        
+        L data;
     };
     
     template <typename L>
     class ArrayNode {
     private:
-        L array[ARRAYSIZE];
         ArrayNode* next;
+        //L array[ARRAYSIZE];
         
     public:
         ArrayNode() {};
@@ -65,6 +69,8 @@ namespace cop3530 {
         L* ElementAddr(size_t position) { return &array[position]; };
         void editElement(size_t position, L element) { array[position] = element; };
         ArrayNode* Next() { return next; };
+        
+        L array[ARRAYSIZE];
     };
     
 }
