@@ -61,7 +61,7 @@ public:
     bool contains(L element, bool (*compare)(L, L)) override;
     //bool contains(L element) override;
     void print(void) override;
-    L* contents(void) override;
+    L& contents(void) override;
     
 public:
     template <typename DataL>
@@ -108,15 +108,15 @@ public:
         }
         
         self_reference operator++() {
-            if (here->Data()) {
-                here = here->Next();
+            if (here->data) {
+                here = here->next;
             }
             return (*this);
         } // preincre ment
         
         self_type operator++(int) {
             self_type tmp(*this);
-            this = this->Next();
+            this = this->next;
             return tmp;
         } // postincrement
         
@@ -198,14 +198,14 @@ void SSLL<L>::insert(L element, size_t position) {
     if (length() < position) {
         throw std::runtime_error("SSLL<L>.insert(): insert position is out of list bounds.");
     } else if (position == 0) { // insert at head of list?
-        if (head == NULL) {    // insert in an empty list?
+        if (head == nullptr) {    // insert in an empty list?
             head = newNode;
             tail = newNode;
-            newNode->setData(element);
-            newNode->setNext(NULL);
+            newNode->data = element;
+            newNode->next = nullptr;
         } else {
-            newNode->setNext(head);
-            newNode->setData(element);
+            newNode->next = head;
+            newNode->data = element;
             head = newNode;
         }
     } else {
@@ -213,11 +213,11 @@ void SSLL<L>::insert(L element, size_t position) {
             tail = newNode;
         }
         while (++i != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
-        newNode->setNext(curr->Next());
-        newNode->setData(element);
-        curr->setNext(newNode);
+        newNode->next = curr->next;
+        newNode->data = element;
+        curr->next = newNode;
         
     }
 }
@@ -229,14 +229,14 @@ template <typename L>
 void SSLL<L>::push_back(L element) {
     Node<L>* newNode = new Node<L>();
     
-    newNode->setData(element);
-    newNode->setNext(NULL);
+    newNode->data = element;
+    newNode->next = nullptr;
     
     if (head == NULL) {     // list empty?
         head = newNode;
         tail = newNode;
     } else {
-        tail->setNext(newNode);
+        tail->next = newNode;
         tail = newNode;
     }
 }
@@ -248,14 +248,14 @@ template <typename L>
 void SSLL<L>::push_front(L element) {
     Node<L>* newNode = new Node<L>();
     
-    newNode->setData(element);
+    newNode->data = element;
     
     if (head == NULL) {     // list empty?
         head = newNode;
         tail = newNode;
-        newNode->setNext(NULL);
+        newNode->next = nullptr;
     } else {
-        newNode->setNext(head);
+        newNode->next = head;
         head = newNode;
     }
 }
@@ -272,15 +272,15 @@ L SSLL<L>::replace(L element, size_t position) {
     if (length() < position) {
         throw std::runtime_error("SSLL<L>.replace(): replace position is out of list bounds.");
     } else if (position == 0) { // replace at start of list?
-        oldData = curr->Data();
-        curr->setData(element);
+        oldData = curr->data;
+        curr->data = element;
     } else {
         while (i++ != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
         
-        oldData = curr->Data();
-        curr->setData(element);
+        oldData = curr->data;
+        curr->data = element;
     }
     return oldData;
 }
@@ -292,7 +292,7 @@ template <typename L>
 L SSLL<L>::remove(size_t position) {
     Node<L>* curr = head;
     Node<L>* next = head;
-    next = next->Next();
+    next = next->next;
     L oldData;
     size_t i = 0;
     
@@ -300,24 +300,25 @@ L SSLL<L>::remove(size_t position) {
         throw std::runtime_error("SSLL<L>.remove(): remove position is out of list bounds.");
     } else if (position == 0) { // remove at start of list?
         head = next;
-        oldData = curr->Data();
+        oldData = curr->data;
         delete curr;
         return oldData;
     } else {
         position = position - 1;
         while (i++ != position) {
-            curr = curr->Next();
-            next = next->Next();
+            curr = curr->next;
+            next = next->next;
         }
-        curr->setNext(next->Next());
+        curr->next = next->next;
         
         if(next == tail) {
             tail = curr;
         }
         
-        oldData = next->Data();
+        oldData = next->data;
         delete next;
-        return oldData;    }
+        return oldData;
+    }
 }
 
 /******************************************
@@ -350,9 +351,9 @@ L& SSLL<L>::item_at(size_t position) {
         throw std::runtime_error("SSLL<L>.item_at(): item_at position is out of list bounds.");
     } else {
         while (i++ != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
-        return curr->Data();
+        return curr->data;
     }
 }
 
@@ -361,7 +362,7 @@ L& SSLL<L>::item_at(size_t position) {
  ******************************************/
 template <typename L>
 L& SSLL<L>::peek_back() {
-    return tail->Data();
+    return tail->data;
 }
 
 /******************************************
@@ -369,7 +370,7 @@ L& SSLL<L>::peek_back() {
  ******************************************/
 template <typename L>
 L& SSLL<L>::peek_front() {
-    return head->Data();
+    return head->data;
 }
 
 /******************************************
@@ -401,7 +402,7 @@ size_t SSLL<L>::length() {
     size_t len = 0;
     
     while (curr) {
-        curr = curr->Next();
+        curr = curr->next;
         len++;
     }
     
@@ -433,11 +434,11 @@ bool SSLL<L>::contains(L element, bool (*compare)(L, L)) {
     Node<L>* curr = head;
     
     while (curr) {
-        if ((compare)(curr->Data(), element)) {
+        if ((compare)(curr->data, element)) {
         //if (curr->Data() == element) {
             return true;
         } else {
-            curr = curr->Next();
+            curr = curr->next;
         }
     }
     
@@ -456,10 +457,10 @@ void SSLL<L>::print() {
         
         std::cout << "[";
         while (curr != tail) {
-            std::cout << curr->Data() << ", ";
-            curr = curr->Next();
+            std::cout << curr->data << ", ";
+            curr = curr->next;
         }
-        std::cout << curr->Data() << "]" << std::endl;
+        std::cout << curr->data << "]" << std::endl;
     }
 }
 
@@ -467,16 +468,16 @@ void SSLL<L>::print() {
  *   contents
  ******************************************/
 template <typename L>
-L* SSLL<L>::contents() {
+L& SSLL<L>::contents() {
     Node<L>* curr = head;
     size_t i = 0;
     L* contents_array = new L[length()];
     
     while (curr) {
-        contents_array[i++] = curr->Data();
-        curr = curr->Next();
+        contents_array[i++] = curr->data;
+        curr = curr->next;
     }
-    return contents_array;
+    return *contents_array;
 }
 
 #endif /* ssll_h */

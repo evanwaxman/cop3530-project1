@@ -165,7 +165,7 @@ bool SSLL_iter() {
     i = 0;
     iter = list.begin();
     for ( ; iter != end ; ++iter ) {
-        if (iter->Data() != item_at(list,i)) {
+        if (iter->data != item_at(list,i)) {
             return false;
         } else {
             i++;
@@ -202,7 +202,7 @@ bool PSLL_iter() {
     i = 0;
     iter = list.begin();
     for ( ; iter != end ; ++iter ) {
-        if (iter->Data() != item_at(list,i)) {
+        if (iter->data != item_at(list,i)) {
             return false;
         } else {
             i++;
@@ -276,7 +276,7 @@ bool CDAL_iter() {
      i = 0;
      iter = list.begin();
      for ( ; iter != end ; ++iter ) {
-         if (iter->Element(i) != item_at(list,i)) {
+         if (iter->array[i] != item_at(list,i)) {
              return false;
          } else {
              i++;

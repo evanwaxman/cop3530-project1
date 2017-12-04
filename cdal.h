@@ -96,7 +96,7 @@ public:
             ArrayNode<L>* currArrayNode = n.data;
             
             for (size_t i=0; i<maxArrayBin; i++) {
-                currArrayNode = currArrayNode->Next();
+                currArrayNode = currArrayNode->next;
             }
             
             self_type i( currArrayNode, maxArrayIndex );
@@ -118,8 +118,8 @@ public:
             if (here != (ARRAYSIZE-1)) {
                 here++;
             } else {
-                if (node->Next()) {
-                    node = node->Next();
+                if (node->next) {
+                    node = node->next;
                     here = 0;
                 }
             }
@@ -133,8 +133,8 @@ public:
             if (here != (ARRAYSIZE-1)) {
                 here++;
             } else {
-                if (node->Next()) {
-                    node = node->Next();
+                if (node->next) {
+                    node = node->next;
                     here = 0;
                 }
             }
@@ -210,7 +210,7 @@ CDAL<L>::~CDAL() {
     ArrayNode<L>* prev = curr;
     
     while (curr) {
-        curr = curr->Next();
+        curr = curr->next;
         delete prev;
         prev = curr;
     }
@@ -234,10 +234,10 @@ void CDAL<L>::insert(L element, size_t position) {
         if (data == nullptr) {
             ArrayNode<L>* newNode = new ArrayNode<L>();
             data = newNode;
-            newNode->setNext(nullptr);
+            newNode->next = nullptr;
             
             // add new first element
-            newNode->editElement(0,element);
+            newNode->array[0] = element;
             
             //tail = 0;
         } else {
@@ -247,56 +247,56 @@ void CDAL<L>::insert(L element, size_t position) {
             // iterate through list until positionArrayBin - 1 is reached
             if (posArrayBin != 0) {
                 for (size_t i=0; i<posArrayBin-1; i++) {
-                    currArrayNode = currArrayNode->Next();
+                    currArrayNode = currArrayNode->next;
                 }
                 // check if posArrayBin exists, if not create new arrayNode
-                if (currArrayNode->Next() == nullptr) {
+                if (currArrayNode->next == nullptr) {
                     ArrayNode<L>* newNode = new ArrayNode<L>();
-                    newNode->setNext(nullptr);
-                    currArrayNode->setNext(newNode);
+                    newNode->next = nullptr;
+                    currArrayNode->next = newNode;
                 }
             
-                currArrayNode = currArrayNode->Next();
+                currArrayNode = currArrayNode->next;
             }
                 
             // keep track of last element in array
-            L tempElement1 = currArrayNode->Element(ARRAYSIZE-1);
+            L tempElement1 = currArrayNode->array[ARRAYSIZE-1];
             
             // shift array elements 1 to the right
             for (size_t i=ARRAYSIZE-2; i>posArrayIndex; --i) {
-                currArrayNode->editElement(i+1,currArrayNode->Element(i));
+                currArrayNode->array[i+1] = currArrayNode->array[i];
             }
-            currArrayNode->editElement(posArrayIndex+1,currArrayNode->Element(posArrayIndex));
+            currArrayNode->array[posArrayIndex+1] = currArrayNode->array[posArrayIndex];
             
             // insert new element into array
-            currArrayNode->editElement(posArrayIndex,element);
+            currArrayNode->array[posArrayIndex] = element;
             
             // check if curr array was last array and new element causes overflow (edge case)
             if (maxArrayBin == posArrayBin && maxArrayIndex == (ARRAYSIZE-1)) {
                 ArrayNode<L>* newArrayNode = new ArrayNode<L>();
-                currArrayNode->setNext(newArrayNode);
-                currArrayNode = currArrayNode->Next();
-                currArrayNode->setNext(nullptr);
+                currArrayNode->next = newArrayNode;
+                currArrayNode = currArrayNode->next;
+                currArrayNode->next = nullptr;
                 
                 // insert last element from previous array into first element of curr array
-                currArrayNode->editElement(0,tempElement1);
+                currArrayNode->array[0] = tempElement1;
             } else {    // iterate through the rest of the arrays, shifting elements to the right 1 index
                 // point currArrayNode to next array
-                currArrayNode = currArrayNode->Next();
+                currArrayNode = currArrayNode->next;
                 
                 // iterate through each arrayNode
                 for (size_t i=posArrayBin+1; i<=maxArrayBin; i++) {
                     // keep track of last element in array
-                    L tempElement2 = currArrayNode->Element(ARRAYSIZE-1);
+                    L tempElement2 = currArrayNode->array[ARRAYSIZE-1];
                     
                     // shift array elements 1 to the right
                     for (size_t j=ARRAYSIZE-2; j>0; --j) {
-                        currArrayNode->editElement(j+1,currArrayNode->Element(j));
+                        currArrayNode->array[j+1] = currArrayNode->array[j];
                     }
-                    currArrayNode->editElement(1,currArrayNode->Element(0));
+                    currArrayNode->array[1] = currArrayNode->array[0];
                     
                     // insert last element from previous array into first element of curr array
-                    currArrayNode->editElement(0,tempElement1);
+                    currArrayNode->array[0] = tempElement1;
                     
                     // keep track of last element so it can be inserted into first index of next array
                     tempElement1 = tempElement2;
@@ -305,13 +305,13 @@ void CDAL<L>::insert(L element, size_t position) {
                         // if max index is at end of array, allocate new array
                         if (maxArrayIndex == (ARRAYSIZE-1)) {
                             ArrayNode<L>* newArrayNode = new ArrayNode<L>();
-                            currArrayNode->setNext(newArrayNode);
-                            currArrayNode = currArrayNode->Next();
-                            currArrayNode->setNext(nullptr);
-                            currArrayNode->editElement(0,tempElement1);
+                            currArrayNode->next = newArrayNode;
+                            currArrayNode = currArrayNode->next;
+                            currArrayNode->next = nullptr;
+                            currArrayNode->array[0] = tempElement1;
                         }
                     } else {
-                        currArrayNode = currArrayNode->Next();
+                        currArrayNode = currArrayNode->next;
                     }
                 }
             }
@@ -353,14 +353,14 @@ L CDAL<L>::replace(L element, size_t position) {
         
         // iterate through list until posArrayBin is found
         for (size_t i=0; i<posArrayBin; i++) {
-            currArrayNode = currArrayNode->Next();
+            currArrayNode = currArrayNode->next;
         }
         
         // store old element in temp
-        L temp = currArrayNode->Element(posArrayIndex);
+        L temp = currArrayNode->array[posArrayIndex];
         
         // replace element
-        currArrayNode->editElement(posArrayIndex, element);
+        currArrayNode->array[posArrayIndex] = element;
         
         //return currArrayNode->Element(posArrayIndex);
         return temp;
@@ -383,28 +383,28 @@ L CDAL<L>::remove(size_t position) {
         
         // create curr and next array node to iterate through list
         ArrayNode<L>* currArrayNode = data;         // point to first array
-        ArrayNode<L>* nextArrayNode = currArrayNode->Next();    // point to second array
+        ArrayNode<L>* nextArrayNode = currArrayNode->next;    // point to second array
         
         // iterate through list until positionArrayBin - 1 is reached
         for (size_t i=0; i<posArrayBin; i++) {
-            currArrayNode = currArrayNode->Next();
-            nextArrayNode = nextArrayNode->Next();
+            currArrayNode = currArrayNode->next;
+            nextArrayNode = nextArrayNode->next;
         }
         
-        L removedElement = currArrayNode->Element(posArrayIndex);
+        L removedElement = currArrayNode->array[posArrayIndex];
         
         // shift array elements 1 to the left
         for (size_t i=posArrayIndex; i<(ARRAYSIZE-1); i++) {
-            currArrayNode->editElement(i,currArrayNode->Element(i+1));
+            currArrayNode->array[i] = currArrayNode->array[i+1];
         }
         
         // check if next array is null
         if (nextArrayNode != nullptr) {
             // replace last element of curr array with first element in next array
-            currArrayNode->editElement((ARRAYSIZE-1),nextArrayNode->Element(0));
+            currArrayNode->array[ARRAYSIZE-1] = nextArrayNode->array[0];
         } else {
             // replace last element of curr array with NULL value
-            currArrayNode->editElement((ARRAYSIZE-1),0);
+            currArrayNode->array[ARRAYSIZE-1] = 0;
             tail--;
             
             return removedElement;
@@ -412,27 +412,27 @@ L CDAL<L>::remove(size_t position) {
         
         // continue shifting elements after posArrayBin to the left 1 bit
         for (size_t i=posArrayBin+1; i<maxArrayBin; i++) {
-            currArrayNode = currArrayNode->Next();
-            nextArrayNode = nextArrayNode->Next();
+            currArrayNode = currArrayNode->next;
+            nextArrayNode = nextArrayNode->next;
             
             // shift array elements 1 to the left
             for (size_t j=0; j<(ARRAYSIZE-1); j++) {
-                currArrayNode->editElement(j,currArrayNode->Element(j+1));
+                currArrayNode->array[j] = currArrayNode->array[j+1];
             }
             
             // replace last element of curr array with first element in next array
-            currArrayNode->editElement((ARRAYSIZE-1),nextArrayNode->Element(0));
+            currArrayNode->array[ARRAYSIZE-1] = nextArrayNode->array[0];
         }
         
         // check if last array is now null after shifting
         if (maxArrayIndex != 0) {
             // finish shifting last array
-            currArrayNode = currArrayNode->Next();
-            nextArrayNode = nextArrayNode->Next();
+            currArrayNode = currArrayNode->next;
+            nextArrayNode = nextArrayNode->next;
             for (size_t j=0; j<maxArrayIndex; j++) {
-                currArrayNode->editElement(j,currArrayNode->Element(j+1));
+                currArrayNode->array[j] = currArrayNode->array[j+1];
             }
-            currArrayNode->editElement(maxArrayIndex,0);
+            currArrayNode->array[maxArrayIndex] = 0;
         } else {
             // delete array and arrayNode
             delete nextArrayNode;
@@ -477,10 +477,10 @@ L& CDAL<L>::item_at(size_t position) {
         
         // iterate through list until positionArrayBin - 1 is reached
         for (size_t i=0; i<posArrayBin; i++) {
-            currArrayNode = currArrayNode->Next();
+            currArrayNode = currArrayNode->next;
         }
         
-        return currArrayNode->Element(posArrayIndex);
+        return currArrayNode->array[posArrayIndex];
     }
 }
 
@@ -539,7 +539,7 @@ void CDAL<L>::clear() {
     ArrayNode<L>* prevArrayNode = data;
     
     for (size_t i=0; i<=maxArrayBin; i++) {
-        currArrayNode = currArrayNode->Next();
+        currArrayNode = currArrayNode->next;
         delete prevArrayNode;
         prevArrayNode = currArrayNode;
     }
@@ -561,15 +561,15 @@ bool CDAL<L>::contains(L element, bool (*compare)(L, L)) {
     
     for (size_t i=0; i<maxArrayBin; i++) {
         for (size_t j=0; j<=ARRAYSIZE; j++) {
-            if ((compare)(currArrayNode->Element(j), element)) {
+            if ((compare)(currArrayNode->array[j], element)) {
                 return true;
             }
         }
-        currArrayNode = currArrayNode->Next();
+        currArrayNode = currArrayNode->next;
     }
     
     for (size_t j=0; j<=maxArrayIndex; j++) {
-        if ((compare)(currArrayNode->Element(j), element)) {
+        if ((compare)(currArrayNode->array[j], element)) {
             return true;
         }
     }
@@ -593,17 +593,17 @@ void CDAL<L>::print() {
         std::cout << "[";
         for (size_t i=0; i<maxArrayBin; i++) {
             for (size_t j=0; j<ARRAYSIZE; j++) {
-                std::cout << currArrayNode->Element(j) << ", ";
+                std::cout << currArrayNode->array[j] << ", ";
             }
-            currArrayNode = currArrayNode->Next();
+            currArrayNode = currArrayNode->next;
         }
         
         // print out last array bin, stopping at tail
         for (size_t i=0; i<maxArrayIndex; i++) {
-            std::cout << currArrayNode->Element(i) << ", ";
+            std::cout << currArrayNode->array[i] << ", ";
         }
         
-        std::cout << currArrayNode->Element(maxArrayIndex) << "]" << std::endl;
+        std::cout << currArrayNode->array[maxArrayIndex] << "]" << std::endl;
     }
 }
 
@@ -623,13 +623,13 @@ L* CDAL<L>::contents() {
     
     for (size_t i=0; i<maxArrayBin; i++) {
         for (size_t j=0; j<ARRAYSIZE; j++) {
-            contentArray[index++] = currArrayNode->Element(j);
+            contentArray[index++] = currArrayNode->array[j];
         }
-        currArrayNode = currArrayNode->Next();
+        currArrayNode = currArrayNode->next;
     }
     
     for (size_t j=0; j<=maxArrayIndex; j++) {
-        contentArray[index++] = currArrayNode->Element(j);
+        contentArray[index++] = currArrayNode->array[j];
     }
     
     return contentArray;

@@ -34,43 +34,34 @@ namespace cop3530 {
         virtual bool contains(L element, bool (*compare)(L, L)) = 0;
         //virtual bool contains(L element) = 0;
         virtual void print(void) = 0;
-        virtual L* contents(void) = 0;
+        virtual L& contents(void) = 0;
         //virtual bool compare(L d1, L d2) = 0;
         
         virtual ~List() {};
     };
     
     template <typename L>
-    class Node {
-    private:
+    struct Node {
         Node* next;
-        
-    public:
-        Node() {};
-        void setData(L new_data) { data = new_data; };
-        void setNext(Node* new_next) { next = new_next; };
-        L Data() { return data; };
-        Node* Next() { return next; };
-        
         L data;
+
+        //void setData(L new_data) { data = new_data; };
+        //void setNext(Node* new_next) { next = new_next; };
+        //L Data() { return data; };
+        //Node* Next() { return next; };
     };
     
     template <typename L>
-    class ArrayNode {
-    private:
+    struct ArrayNode {
         ArrayNode* next;
-        //L array[ARRAYSIZE];
-        
-    public:
-        ArrayNode() {};
-        //void setArray(L* new_array) { array = new_array; };
-        void setNext(ArrayNode* new_next) { next = new_next; };
-        L Element(size_t position) { return array[position]; };
-        L* ElementAddr(size_t position) { return &array[position]; };
-        void editElement(size_t position, L element) { array[position] = element; };
-        ArrayNode* Next() { return next; };
-        
         L array[ARRAYSIZE];
+        
+        //void setArray(L* new_array) { array = new_array; };
+        //void setNext(ArrayNode* new_next) { next = new_next; };
+        //L Element(size_t position) { return array[position]; };
+        //L* ElementAddr(size_t position) { return &array[position]; };
+        //void editElement(size_t position, L element) { array[position] = element; };
+        //ArrayNode* Next() { return next; };
     };
     
 }

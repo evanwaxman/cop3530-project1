@@ -117,15 +117,15 @@ public:
         }
         
         self_reference operator++() {
-            if (here->Data()) {
-                here = here->Next();
+            if (here->data) {
+                here = here->next;
             }
             return (*this);
         } // preincre ment
         
         self_type operator++(int) {
             self_type tmp(*this);
-            this = this->Next();
+            this = this->next;
             return tmp;
         } // postincrement
         
@@ -219,28 +219,28 @@ void PSLL<L>::insert(L element, size_t position) {
         if (head == NULL) {     // insert in an empty list?
             head = headFree;
             tail = headFree;
-            headFree = headFree->Next();
-            head->setData(element);
-            head->setNext(NULL);
+            headFree = headFree->next;
+            head->data = element;
+            head->next = nullptr;
         } else {
             curr = headFree;
-            headFree = headFree->Next();
-            curr->setNext(head);
+            headFree = headFree->next;
+            curr->next = head;
             head = curr;
-            head->setData(element);
+            head->data = element;
         }
     } else {
         if (length() == position) { // insert at end of list?
             tail = headFree;
         }
         while (++i != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
         next = headFree;
-        headFree = headFree->Next();
-        next->setNext(curr->Next());
-        next->setData(element);
-        curr->setNext(next);
+        headFree = headFree->next;
+        next->next = curr->next;
+        next->data = element;
+        curr->next = next;
     }
 }
 
@@ -256,15 +256,15 @@ void PSLL<L>::push_back(L element) {
     if (head == NULL) {
         head = headFree;
         tail = head;
-        headFree = headFree->Next();
-        head->setData(element);
-        head->setNext(NULL);
+        headFree = headFree->next;
+        head->data = element;
+        head->next = nullptr;
     } else {
-        tail->setNext(headFree);
+        tail->next = headFree;
         tail = headFree;
-        headFree = headFree->Next();
-        tail->setData(element);
-        tail->setNext(NULL);
+        headFree = headFree->next;
+        tail->data = element;
+        tail->next = nullptr;
     }
 }
 
@@ -280,15 +280,15 @@ void PSLL<L>::push_front(L element) {
     if (head == NULL) {     // insert in an empty list?
         head = headFree;
         tail = head;
-        headFree = headFree->Next();
-        head->setData(element);
-        head->setNext(NULL);
+        headFree = headFree->next;
+        head->data = element;
+        head->next = nullptr;
     } else {
         Node<L>* curr = headFree;
-        headFree = headFree->Next();
-        curr->setNext(head);
+        headFree = headFree->next;
+        curr->next = head;
         head = curr;
-        head->setData(element);
+        head->data = element;
     }
 }
 
@@ -304,15 +304,15 @@ L PSLL<L>::replace(L element, size_t position) {
     if (length() < position) {
         throw std::runtime_error("SSLL<L>.replace(): replace position is out of list bounds.");
     } else if (position == 0) { // replace at start of list?
-        oldData = curr->Data();
-        curr->setData(element);
+        oldData = curr->data;
+        curr->data = element;
     } else {
         while (i++ != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
         
-        oldData = curr->Data();
-        curr->setData(element);
+        oldData = curr->data;
+        curr->data = element;
     }
     return oldData;
 }
@@ -324,7 +324,7 @@ template <typename L>
 L PSLL<L>::remove(size_t position) {
     Node<L>* curr = head;
     Node<L>* next = head;
-    next = next->Next();
+    next = next->next;
     L oldData;
     size_t i = 0;
     
@@ -337,24 +337,24 @@ L PSLL<L>::remove(size_t position) {
         } else {
             head = next;
         }
-        oldData = curr->Data();
-        curr->setNext(headFree);
-        curr->setData(0);
+        oldData = curr->data;
+        curr->next = headFree;
+        curr->data = 0;
         headFree = curr;
     } else {
         position = position - 1;
         while (i++ != position) {
-            curr = curr->Next();
-            next = next->Next();
+            curr = curr->next;
+            next = next->next;
         }
-        curr->setNext(next->Next());
+        curr->next = next->next;
         if(next == tail) {
             tail = curr;
         }
         
-        next->setNext(headFree);
-        oldData = next->Data();
-        next->setData(0);
+        next->next = headFree;
+        oldData = next->data;
+        next->data = 0;
         headFree = next;
     }
     
@@ -395,9 +395,9 @@ L& PSLL<L>::item_at(size_t position) {
         throw std::runtime_error("SSLL<L>.item_at(): item_at position is out of list bounds.");
     } else {
         while (i++ != position) {
-            curr = curr->Next();
+            curr = curr->next;
         }
-        return curr->Data();
+        return curr->data;
     }
 }
 
@@ -406,7 +406,7 @@ L& PSLL<L>::item_at(size_t position) {
  ******************************************/
 template <typename L>
 L& PSLL<L>::peek_back() {
-    return tail->Data();
+    return tail->data;
 }
 
 /******************************************
@@ -414,7 +414,7 @@ L& PSLL<L>::peek_back() {
  ******************************************/
 template <typename L>
 L& PSLL<L>::peek_front() {
-    return head->Data();
+    return head->data;
 }
 
 /******************************************
@@ -453,7 +453,7 @@ size_t PSLL<L>::length() {
     size_t len = 0;
     
     while (curr) {
-        curr = curr->Next();
+        curr = curr->next;
         len++;
     }
     
@@ -484,10 +484,10 @@ bool PSLL<L>::contains(L element, bool (*compare)(L, L)) {
     Node<L>* curr = head;
     
     while (curr) {
-        if ((compare)(curr->Data(), element)) {
+        if ((compare)(curr->data, element)) {
             return true;
         } else {
-            curr = curr->Next();
+            curr = curr->next;
         }
     }
     
@@ -506,10 +506,10 @@ void PSLL<L>::print() {
         
         std::cout << "[";
         while (curr != tail) {
-            std::cout << curr->Data() << ", ";
-            curr = curr->Next();
+            std::cout << curr->data << ", ";
+            curr = curr->next;
         }
-        std::cout << curr->Data() << "]" << std::endl;
+        std::cout << curr->data << "]" << std::endl;
     }
 }
 
@@ -523,8 +523,8 @@ L* PSLL<L>::contents() {
     L* contents_array = new L[length()];
     
     while (curr) {
-        contents_array[i++] = curr->Data();
-        curr = curr->Next();
+        contents_array[i++] = curr->data;
+        curr = curr->next;
     }
     return contents_array;
 }
@@ -542,7 +542,7 @@ void PSLL<L>::print_free_list() {
         std::cout << "[";
         while (curr) {
             std::cout << i++ << " ";
-            curr = curr->Next();
+            curr = curr->next;
         }
         std::cout << "]" << std::endl;
     }
@@ -557,7 +557,7 @@ size_t PSLL<L>::length_free_list() {
     size_t len = 0;
     
     while (curr) {
-        curr = curr->Next();
+        curr = curr->next;
         len++;
     }
     
@@ -570,8 +570,8 @@ size_t PSLL<L>::length_free_list() {
 template <typename L>
 void PSLL<L>::allocate_node() {
     Node<L>* newNode = new Node<L>;
-    newNode->setData(0);
-    newNode->setNext(headFree);
+    newNode->data = 0;
+    newNode->next = headFree;
     headFree = newNode;
 }
 
@@ -581,7 +581,7 @@ void PSLL<L>::allocate_node() {
 template <typename L>
 void PSLL<L>::deallocate_node() {
     Node<L>* curr = headFree;
-    headFree = headFree->Next();
+    headFree = headFree->next;
     
     delete curr;
 }
@@ -592,8 +592,8 @@ void PSLL<L>::deallocate_node() {
 template <typename L>
 void PSLL<L>::clear_free() {
     Node<L>* temp = headFree;
-    while (headFree->Next()) {
-        headFree = headFree->Next();
+    while (headFree->next) {
+        headFree = headFree->next;
         delete temp;
         temp = headFree;
     }
