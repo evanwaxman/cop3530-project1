@@ -69,7 +69,7 @@ public:
     //bool contains(L element) override;
     bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
-    L* contents(void) override;
+    L& contents(void) override;
     
     void enlarge_array(void);
     void reduce_array(void);
@@ -452,8 +452,8 @@ void SDAL<L>::print() {
  *   contents
  ******************************************/
 template <typename L>
-L* SDAL<L>::contents() {
-    return data;
+L& SDAL<L>::contents() {
+    return *data;
 }
 
 /******************************************

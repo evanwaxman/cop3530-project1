@@ -66,7 +66,7 @@ public:
     //bool contains(L element) override;
     bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
-    L* contents(void) override;
+    L& contents(void) override;
     
     void print_free_list(void);
     size_t length_free_list(void);
@@ -517,7 +517,7 @@ void PSLL<L>::print() {
  *   contents
  ******************************************/
 template <typename L>
-L* PSLL<L>::contents() {
+L& PSLL<L>::contents() {
     Node<L>* curr = head;
     size_t i = 0;
     L* contents_array = new L[length()];
@@ -526,7 +526,7 @@ L* PSLL<L>::contents() {
         contents_array[i++] = curr->data;
         curr = curr->next;
     }
-    return contents_array;
+    return *contents_array;
 }
 
 /******************************************

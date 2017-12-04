@@ -60,7 +60,7 @@ public:
     //bool contains(L element) override;
     bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
-    L* contents(void) override;
+    L& contents(void) override;
     
 public:
     template <typename DataL>
@@ -611,7 +611,7 @@ void CDAL<L>::print() {
  *   contents
  ******************************************/
 template <typename L>
-L* CDAL<L>::contents() {
+L& CDAL<L>::contents() {
     ArrayNode<L>* currArrayNode = data;
     
     L* contentArray = new L[tail];
@@ -632,7 +632,7 @@ L* CDAL<L>::contents() {
         contentArray[index++] = currArrayNode->array[j];
     }
     
-    return contentArray;
+    return *contentArray;
 }
 
 #endif /* cdal_h */

@@ -72,7 +72,7 @@ public:
     //bool contains(L element) override;
     bool contains(L element, bool (*compare)(L, L)) override;
     void print(void) override;
-    L* contents(void) override;
+    L& contents(void) override;
     
     void enlarge_array(void);
     void reduce_array(void);
@@ -509,9 +509,9 @@ void CBL<L>::print() {
  *   contents
  ******************************************/
 template <typename L>
-L* CBL<L>::contents() {
+L& CBL<L>::contents() {
     //return data;
-    return data;
+    return *data;
 }
 
 /******************************************
