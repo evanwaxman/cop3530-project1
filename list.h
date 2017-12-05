@@ -31,10 +31,10 @@ namespace cop3530 {
         virtual bool is_full(void) = 0;
         virtual size_t length(void) = 0;
         virtual void clear(void) = 0;
-        virtual bool contains(L element, bool (*compare)(L, L)) = 0;
+        virtual bool contains(L element, bool (*compare)(const L&, const L&)) = 0;
         //virtual bool contains(L element) = 0;
-        virtual void print(void) = 0;
-        virtual L& contents(void) = 0;
+        virtual void print(std::ostream&) = 0;
+        virtual L* contents(void) = 0;
         //virtual bool compare(L d1, L d2) = 0;
         
         virtual ~List() {};
@@ -44,24 +44,12 @@ namespace cop3530 {
     struct Node {
         Node* next;
         L data;
-
-        //void setData(L new_data) { data = new_data; };
-        //void setNext(Node* new_next) { next = new_next; };
-        //L Data() { return data; };
-        //Node* Next() { return next; };
     };
     
     template <typename L>
     struct ArrayNode {
         ArrayNode* next;
         L array[ARRAYSIZE];
-        
-        //void setArray(L* new_array) { array = new_array; };
-        //void setNext(ArrayNode* new_next) { next = new_next; };
-        //L Element(size_t position) { return array[position]; };
-        //L* ElementAddr(size_t position) { return &array[position]; };
-        //void editElement(size_t position, L element) { array[position] = element; };
-        //ArrayNode* Next() { return next; };
     };
     
 }

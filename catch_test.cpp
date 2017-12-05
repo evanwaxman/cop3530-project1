@@ -11,12 +11,12 @@
 #include "catch.hpp"
 
 #include <iostream>
-#include "list.h"
-#include "ssll.h"
-#include "psll.h"
-#include "sdal.h"
-#include "cdal.h"
-#include "cbl.h"
+#include "List.h"
+#include "SSLL.h"
+#include "PSLL.h"
+#include "SDAL.h"
+#include "CDAL.h"
+#include "CBL.h"
 
 //#define TEST_SSLL 1
 //#define TEST_PSSL 1
@@ -24,106 +24,107 @@
 //#define TEST_CDAL 1
 #define TEST_CBL 1
 
-using namespace cop3530;
+//using namespace cop3530;
 
 /******************************************
  *   push_back
  ******************************************/
-char push_back(List<char>& list, char element) {
-    list.push_back(element);
-    return list.peek_back();
+char push_back(cop3530::List<char>* list, char element) {
+    list->push_back(element);
+    return list->peek_back();
 }
 
 /******************************************
  *   push_front
  ******************************************/
-char push_front(List<char>& list, char element) {
-    list.push_front(element);
-    return list.peek_front();
+char push_front(cop3530::List<char>* list, char element) {
+    list->push_front(element);
+    return list->peek_front();
 }
 
 /******************************************
  *   insert
  ******************************************/
-char insert(List<char>& list, char element, size_t position) {
-    list.insert(element, position);
-    return list.item_at(position);
+char insert(cop3530::List<char>* list, char element, size_t position) {
+    list->insert(element, position);
+    return list->item_at(position);
 }
 
 /******************************************
  *   replace
  ******************************************/
-char replace(List<char>& list, char element, size_t position) {
-    return list.replace(element, position);
+char replace(cop3530::List<char>* list, char element, size_t position) {
+    return list->replace(element, position);
 }
 
 /******************************************
  *   remove
  ******************************************/
-char remove(List<char>& list, size_t position) {
-    return list.remove(position);
-    /*
-    if (position == (list.length())) {
-        position--;
-    }
-    return list.item_at(position);
-    */
+char remove(cop3530::List<char>* list, size_t position) {
+    return list->remove(position);
 }
 
 /******************************************
  *   pop_back
  ******************************************/
-char pop_back(List<char>& list) {
-    return list.pop_back();
+char pop_back(cop3530::List<char>* list) {
+    return list->pop_back();
 }
 
 /******************************************
  *   pop_front
  ******************************************/
-char pop_front(List<char>& list) {
-    return list.pop_front();
+char pop_front(cop3530::List<char>* list) {
+    return list->pop_front();
 }
 
 /******************************************
  *   item_at
  ******************************************/
-char item_at(List<char>& list, size_t position) {
-    return list.item_at(position);
+char item_at(cop3530::List<char>* list, size_t position) {
+    return list->item_at(position);
 }
 
 /******************************************
  *   peek_back
  ******************************************/
-char peek_back(List<char>& list) {
-    return list.peek_back();
+char peek_back(cop3530::List<char>* list) {
+    return list->peek_back();
 }
 
 /******************************************
  *   peek_front
  ******************************************/
-char peek_front(List<char>& list) {
-    return list.peek_front();
+char peek_front(cop3530::List<char>* list) {
+    return list->peek_front();
 }
 
 /******************************************
  *   is_empty
  ******************************************/
-char is_empty(List<char>& list) {
-    return list.is_empty();
+char is_empty(cop3530::List<char>* list) {
+    return list->is_empty();
 }
 
 /******************************************
  *   is_full
  ******************************************/
-char is_full(List<char>& list) {
-    return list.is_full();
+char is_full(cop3530::List<char>* list) {
+    return list->is_full();
+}
+
+/******************************************
+ *   length
+ ******************************************/
+char length(cop3530::List<char>* list) {
+    return list->length();
 }
 
 /******************************************
  *   compare
  ******************************************/
 template <typename L>
-bool compare(L d1, L d2) {
+bool compare(const L& d1, const L& d2) {
     if (d1 == d2) {
         return true;
     }
@@ -133,16 +134,15 @@ bool compare(L d1, L d2) {
 /******************************************
  *   contains
  ******************************************/
-char contains(List<char>& list, char element) {
-    //bool (*compare_ptr)(char, char) = compare();
-    return list.contains(element,*compare<char>);
+char contains(cop3530::List<char>* list, char element) {
+    return list->contains(element,*compare<char>);
 }
 
 /******************************************
  *   SSLL_iter
  ******************************************/
 bool SSLL_iter() {
-    SSLL<char> list = SSLL<char>();
+    cop3530::SSLL<char> * list = new cop3530::SSLL<char>();
 
     // fill list with values
     char value = 'a';
@@ -150,8 +150,8 @@ bool SSLL_iter() {
         push_back(list,value++);
     }
     
-    SSLL<char>::iterator iter = list.begin();
-    SSLL<char>::iterator end = list.end();
+    cop3530::SSLL<char>::iterator iter = list->begin();
+    cop3530::SSLL<char>::iterator end = list->end();
     
     size_t i = 0;
     for ( ; iter != end ; ++iter ) {
@@ -163,7 +163,7 @@ bool SSLL_iter() {
     }
     
     i = 0;
-    iter = list.begin();
+    iter = list->begin();
     for ( ; iter != end ; ++iter ) {
         if (iter->data != item_at(list,i)) {
             return false;
@@ -171,6 +171,8 @@ bool SSLL_iter() {
             i++;
         }
     }
+    
+    delete list;
     
     return true;
 }
@@ -179,7 +181,7 @@ bool SSLL_iter() {
  *   PSLL_iter
  ******************************************/
 bool PSLL_iter() {
-    PSLL<char> list = PSLL<char>();
+    cop3530::PSLL<char> * list = new cop3530::PSLL<char>();
     
     // fill list with values
     char value = 'a';
@@ -187,8 +189,8 @@ bool PSLL_iter() {
         push_back(list,value++);
     }
     
-    PSLL<char>::iterator iter = list.begin();
-    PSLL<char>::iterator end = list.end();
+    cop3530::PSLL<char>::iterator iter = list->begin();
+    cop3530::PSLL<char>::iterator end = list->end();
     
     size_t i = 0;
     for ( ; iter != end ; ++iter ) {
@@ -200,7 +202,7 @@ bool PSLL_iter() {
     }
     
     i = 0;
-    iter = list.begin();
+    iter = list->begin();
     for ( ; iter != end ; ++iter ) {
         if (iter->data != item_at(list,i)) {
             return false;
@@ -209,6 +211,8 @@ bool PSLL_iter() {
         }
     }
     
+    delete list;
+    
     return true;
 }
 
@@ -216,7 +220,7 @@ bool PSLL_iter() {
  *   SDAL_iter
  ******************************************/
 bool SDAL_iter() {
-    SDAL<char> list = SDAL<char>();
+    cop3530::SDAL<char> * list = new cop3530::SDAL<char>();
     
     // fill list with values
     char value = 'a';
@@ -224,8 +228,8 @@ bool SDAL_iter() {
         push_back(list,value++);
     }
     
-    SDAL<char>::iterator iter = list.begin();
-    SDAL<char>::iterator end = list.end();
+    cop3530::SDAL<char>::iterator iter = list->begin();
+    cop3530::SDAL<char>::iterator end = list->end();
     
     size_t i = 0;
     for ( ; iter != end ; ++iter ) {
@@ -235,17 +239,9 @@ bool SDAL_iter() {
             i++;
         }
     }
-    /*
-    i = 0;
-    iter = list.begin();
-    for ( ; iter != end ; ++iter ) {
-        if (iter->Data() != item_at(list,i)) {
-            return false;
-        } else {
-            i++;
-        }
-    }
-    */
+
+    delete list;
+    
     return true;
 }
 
@@ -253,7 +249,7 @@ bool SDAL_iter() {
  *   CDAL_iter
  ******************************************/
 bool CDAL_iter() {
-    CDAL<char> list = CDAL<char>();
+    cop3530::CDAL<char> * list = new cop3530::CDAL<char>();
     
     // fill list with values
     char value = 'a';
@@ -261,8 +257,8 @@ bool CDAL_iter() {
         push_back(list,value++);
     }
     
-    CDAL<char>::iterator iter = list.begin();
-    CDAL<char>::iterator end = list.end();
+    cop3530::CDAL<char>::iterator iter = list->begin();
+    cop3530::CDAL<char>::iterator end = list->end();
     
     size_t i = 0;
     for ( ; iter != end ; ++iter ) {
@@ -274,7 +270,7 @@ bool CDAL_iter() {
     }
     
      i = 0;
-     iter = list.begin();
+     iter = list->begin();
      for ( ; iter != end ; ++iter ) {
          if (iter->array[i] != item_at(list,i)) {
              return false;
@@ -283,6 +279,8 @@ bool CDAL_iter() {
          }
      }
     
+    delete list;
+    
     return true;
 }
 
@@ -290,7 +288,7 @@ bool CDAL_iter() {
  *   CBL_iter
  ******************************************/
 bool CBL_iter() {
-    CBL<char> list = CBL<char>();
+    cop3530::CBL<char> * list = new cop3530::CBL<char>();
     
     // fill list with values
     char value = 'a';
@@ -298,8 +296,8 @@ bool CBL_iter() {
         push_back(list,value++);
     }
     
-    CBL<char>::iterator iter = list.begin();
-    CBL<char>::iterator end = list.end();
+    cop3530::CBL<char>::iterator iter = list->begin();
+    cop3530::CBL<char>::iterator end = list->end();
     
     size_t i = 0;
     for ( ; iter != end ; ++iter ) {
@@ -309,32 +307,24 @@ bool CBL_iter() {
             i++;
         }
     }
-    /*
-     i = 0;
-     iter = list.begin();
-     for ( ; iter != end ; ++iter ) {
-     if (iter->Data() != item_at(list,i)) {
-     return false;
-     } else {
-     i++;
-     }
-     }
-     */
+    
+    delete list;
+    
     return true;
 }
 
 
 TEST_CASE( "Add components to list", "[add]" ) {
     #ifdef TEST_SSLL
-        SSLL<char> list = SSLL<char>();
+        cop3530::List<char> * list  = new cop3530::SSLL<char>();
     #elif TEST_PSSL
-        PSLL<char> list = PSLL<char>();
+        cop3530::List<char> * list = new cop3530::PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>(10);
+        cop3530::List<char> * list = new cop3530::SDAL<char>(10);
     #elif TEST_CDAL
-        CDAL<char> list = CDAL<char>();
+        cop3530::List<char> * list = new cop3530::CDAL<char>();
     #elif TEST_CBL
-        CBL<char> list = CBL<char>(10);
+        cop3530::List<char> * list = new cop3530::CBL<char>(10);
     #endif
     
     REQUIRE( push_back(list,'c') == 'c' );
@@ -345,20 +335,22 @@ TEST_CASE( "Add components to list", "[add]" ) {
     REQUIRE( insert(list,'x',0) == 'x' );
     REQUIRE( insert(list,'z',6) == 'z' );
     
-    list.clear();   // deallocate list
+    list->clear();   // deallocate list
+    
+    delete list;
 }
 
 TEST_CASE( "Subtract components from the list", "[subtract]" ) {
     #ifdef TEST_SSLL
-        SSLL<char> list = SSLL<char>();
+        cop3530::List<char> * list  = new cop3530::SSLL<char>();
     #elif TEST_PSSL
-        PSLL<char> list = PSLL<char>();
+        cop3530::List<char> * list = new cop3530::PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>(10);
+        cop3530::List<char> * list = new cop3530::SDAL<char>(10);
     #elif TEST_CDAL
-        CDAL<char> list = CDAL<char>();
+        cop3530::List<char> * list = new cop3530::CDAL<char>();
     #elif TEST_CBL
-        CBL<char> list = CBL<char>(10);
+        cop3530::List<char> * list = new cop3530::CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -376,20 +368,22 @@ TEST_CASE( "Subtract components from the list", "[subtract]" ) {
     REQUIRE( pop_front(list) == 'b' );
     REQUIRE( pop_back(list) == 'i' );
     
-    list.clear();   // deallocate list
+    list->clear();   // deallocate list
+    
+    delete list;
 }
 
 TEST_CASE( "View components in list", "[view]" ) {
     #ifdef TEST_SSLL
-        SSLL<char> list = SSLL<char>();
+        cop3530::List<char> * list  = new cop3530::SSLL<char>();
     #elif TEST_PSSL
-        PSLL<char> list = PSLL<char>();
+        cop3530::List<char> * list = new cop3530::PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>(10);
+        cop3530::List<char> * list = new cop3530::SDAL<char>(10);
     #elif TEST_CDAL
-        CDAL<char> list = CDAL<char>();
+        cop3530::List<char> * list = new cop3530::CDAL<char>();
     #elif TEST_CBL
-        CBL<char> list = CBL<char>(10);
+        cop3530::List<char> * list = new cop3530::CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -404,20 +398,22 @@ TEST_CASE( "View components in list", "[view]" ) {
     REQUIRE( peek_back(list) == 'j' );
     REQUIRE( peek_front(list) == 'a' );
     
-    list.clear();   // deallocate list
+    list->clear();   // deallocate list
+    
+    delete list;
 }
 
 TEST_CASE( "Check capacity of list", "[capacity]" ) {
     #ifdef TEST_SSLL
-        SSLL<char> list = SSLL<char>();
+        cop3530::List<char> * list  = new cop3530::SSLL<char>();
     #elif TEST_PSSL
-        PSLL<char> list = PSLL<char>();
+        cop3530::List<char> * list = new cop3530::PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>();
+        cop3530::List<char> * list = new cop3530::SDAL<char>(10);
     #elif TEST_CDAL
-        CDAL<char> list = CDAL<char>();
+        cop3530::List<char> * list = new cop3530::CDAL<char>();
     #elif TEST_CBL
-        CBL<char> list = CBL<char>(10);
+        cop3530::List<char> * list = new cop3530::CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -442,23 +438,26 @@ TEST_CASE( "Check capacity of list", "[capacity]" ) {
     REQUIRE( remove(list,0) == 'c' );
     REQUIRE( remove(list,100) == 'b' );
 
-    list.clear();   // deallocate list
+    list->clear();   // deallocate list
     
     REQUIRE( is_empty(list) == 1 );
     REQUIRE( is_full(list) == 0 );
+    REQUIRE( length(list) == 0 );
+    
+    delete list;
 }
 
 TEST_CASE( "Check contents of list", "[contents]" ) {
     #ifdef TEST_SSLL
-        SSLL<char> list = SSLL<char>();
+        cop3530::List<char> * list  = new cop3530::SSLL<char>();
     #elif TEST_PSSL
-        PSLL<char> list = PSLL<char>();
+        cop3530::List<char> * list = new cop3530::PSLL<char>();
     #elif TEST_SDAL
-        SDAL<char> list = SDAL<char>(10);
+        cop3530::List<char> * list = new cop3530::SDAL<char>(10);
     #elif TEST_CDAL
-        CDAL<char> list = CDAL<char>();
+        cop3530::List<char> * list = new cop3530::CDAL<char>();
     #elif TEST_CBL
-        CBL<char> list = CBL<char>(10);
+        cop3530::List<char> * list = new cop3530::CBL<char>(10);
     #endif
     
     char value = 'a';
@@ -473,7 +472,9 @@ TEST_CASE( "Check contents of list", "[contents]" ) {
         value++;
     }
     
-    list.clear();   // deallocate list
+    list->clear();   // deallocate list
+    
+    delete list;
 }
 
 TEST_CASE( "Test iterator functionality", "[iterators]" ) {
